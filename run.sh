@@ -11,7 +11,7 @@ cmake --build build/$build_type --target MPI_Raytracer
 if [ $? -eq 0 ]; then
 	echo "Compilation successful. Running the program..."
 	#Execute the ParticleSystem binary
-	./build/*/MPI_Raytracer
+	mpirun -np 10 ./build/*/MPI_Raytracer
 else
 	echo "Compilation failed. Please check the error messages."
 fi
