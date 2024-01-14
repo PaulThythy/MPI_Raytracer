@@ -1,4 +1,8 @@
-#include <mpi.h>
+#ifdef _WIN32
+	#include "../lib/MPI/Include/mpi.h"
+#elif __linux__
+	#include <mpi.h>
+#endif
 #include <iostream>
 
 int main(int argc, char *argv[]) {
