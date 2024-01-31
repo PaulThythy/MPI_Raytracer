@@ -1,7 +1,9 @@
 #ifdef _WIN32
 	#include "../libs/MPI/Include/mpi.h"
+    #include <SDL.h>
 #elif __linux__
 	#include <mpi.h>
+    #include <SDL2/SDL.h>
 #endif
 #include <iostream>
 
