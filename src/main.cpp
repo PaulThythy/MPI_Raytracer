@@ -1,5 +1,5 @@
 #ifdef _WIN32
-	#include "../lib/MPI/Include/mpi.h"
+	#include "../libs/MPI/Include/mpi.h"
 #elif __linux__
 	#include <mpi.h>
 #endif

@@ -15,8 +15,8 @@ add_executable(MPI_Raytracer ${RAYTRACER_SOURCES})
 find_package(MPI REQUIRED)
 
 if(WIN32)
-    #set(MPI_CXX_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/lib/MPI/Include")
-    #set(MPI_CXX_LIBRARIES "${PROJECT_SOURCE_DIR}/lib/MPI/Lib")
+    #set(MPI_CXX_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/libs/MPI/Include")
+    #set(MPI_CXX_LIBRARIES "${PROJECT_SOURCE_DIR}/libs/MPI/Lib")
 
     #include_directories(MPI_CXX_INCLUDE_PATH)
     #link_directories(MPI_CXX_LIBRARIES)
