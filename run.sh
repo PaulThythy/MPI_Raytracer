@@ -1,6 +1,7 @@
 #!/bin/bash
 
 OS="$(uname -s)"
+NB_PROCESS=25
 
 build_type=Debug 
 
@@ -15,11 +16,9 @@ if [ $? -eq 0 ]; then
 	
 	#Execute the ParticleSystem binary
 	case "$OS" in
-		Linux*)	mpirun -np 10 ./build/*/MPI_Raytracer;;
-		CYGWIN*|MINGW32*|MSYS*|MINGW*)	mpiexec -np 10 ./build/*/MPI_Raytracer;;
+		Linux*)	mpirun -np ${NB_PROCESS} ./build/*/MPI_Raytracer;;
+		CYGWIN*|MINGW32*|MSYS*|MINGW*)	mpiexec -np ${NB_PROCESS} ./build/*/MPI_Raytracer;;
 	esac
 else
 	echo "Compilation failed. Please check the error messages."
 fi
-
-read
