@@ -3,7 +3,7 @@
 ## On linux, type the following command to install dependencies :
 
 ```sh
-sudo apt install libsdl2-dev mpich
+sudo apt install libsdl2-dev mpich ninja-build
 ```
 
 ## On windows, install Microsoft MPI from their website

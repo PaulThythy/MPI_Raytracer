@@ -68,15 +68,15 @@ int main(int argc, char *argv[]) {
                 }
             }
 
+            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL_RenderClear(renderer);
+            SDL_RenderPresent(renderer);
+            
             for (int i = 1; i < num_tasks; i++) {
                 PixelData pixel;
                 MPI_Recv(&pixel, 2, MPI_INT, i, 0, MPI_COMM_WORLD, &status);
                 setPixel(renderer, pixel.x, pixel.y, pixel.color);
             }
-
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderClear(renderer);
-            SDL_RenderPresent(renderer);
         }
     }
     else {
