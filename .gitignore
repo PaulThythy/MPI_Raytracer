@@ -23,3 +23,5 @@
 # Directory
 build
 bin
+
+.vscode
