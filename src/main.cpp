@@ -10,11 +10,11 @@
 
 struct PixelData {
     int x, y;
-    SDL_Color color;
+    int r, g, b;
 };
 
-void setPixel(SDL_Renderer* renderer, int x, int y, SDL_Color color) {
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 1);
     SDL_RenderDrawPoint(renderer, x, y);
 }
 
@@ -38,6 +38,21 @@ int main(int argc, char *argv[]) {
 
     const int screenWidth = 800;
     const int screenHeight = 600;
+
+    /* create a serializable struct for MPI */
+    const int nitems = 5;
+    int blocklengths[5] = {1,1,1,1,1};
+    MPI_Datatype types[5] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    MPI_Datatype mpi_pixelData_type;
+    MPI_Aint offsets[5];
+    offsets[0] = offsetof(PixelData, x);
+    offsets[1] = offsetof(PixelData, y);
+    offsets[2] = offsetof(PixelData, r);
+    offsets[3] = offsetof(PixelData, g);
+    offsets[4] = offsetof(PixelData, b);
+    MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_pixelData_type);
+    MPI_Type_commit(&mpi_pixelData_type);
+
 
     if(rank == 0) {
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -72,11 +87,9 @@ int main(int argc, char *argv[]) {
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);
             
-            for (int i = 1; i < num_tasks; i++) {
-                PixelData pixel;
-                MPI_Recv(&pixel, 2, MPI_INT, i, 0, MPI_COMM_WORLD, &status);
-                setPixel(renderer, pixel.x, pixel.y, pixel.color);
-            }
+            PixelData pixel;
+            MPI_Recv(&pixel, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+            setPixel(renderer, pixel.x, pixel.y, pixel.r, pixel.g, pixel.b);
         }
     }
     else {
@@ -87,8 +100,8 @@ int main(int argc, char *argv[]) {
         PixelData pixel;
         pixel.x = distribX(gen);
         pixel.y = distribY(gen);
-        pixel.color = {255, 0, 0, 255};
-        MPI_Send(&pixel, 2, MPI_INT, 0, 0, MPI_COMM_WORLD);
+        pixel.r = 255; pixel.g = 0; pixel.b = 0;
+        MPI_Send(&pixel, 1, mpi_pixelData_type, 0, 0, MPI_COMM_WORLD);
     }
 
     SDL_DestroyRenderer(renderer);
