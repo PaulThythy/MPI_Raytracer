@@ -17,3 +17,6 @@ mpicxx src/main.cpp -o bin/main
 ```sh
 mpirun -np 4 ./main
 ```
+
+## TODO :
+find out more informations on flags compilation with GCC, for SIMD instructions 
