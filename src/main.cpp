@@ -8,10 +8,7 @@
 #include <iostream>
 #include <random>
 
-struct PixelData {
-    int x, y;
-    int r, g, b;
-};
+#include "mpi_data_struct.h"
 
 void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, 1);
@@ -39,20 +36,7 @@ int main(int argc, char *argv[]) {
     const int screenWidth = 800;
     const int screenHeight = 600;
 
-    /* create a serializable struct for MPI */
-    const int nitems = 5;
-    int blocklengths[5] = {1,1,1,1,1};
-    MPI_Datatype types[5] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
-    MPI_Datatype mpi_pixelData_type;
-    MPI_Aint offsets[5];
-    offsets[0] = offsetof(PixelData, x);
-    offsets[1] = offsetof(PixelData, y);
-    offsets[2] = offsetof(PixelData, r);
-    offsets[3] = offsetof(PixelData, g);
-    offsets[4] = offsetof(PixelData, b);
-    MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_pixelData_type);
-    MPI_Type_commit(&mpi_pixelData_type);
-
+    init_mpi_data_structs();
 
     if(rank == 0) {
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
