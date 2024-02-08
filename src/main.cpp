@@ -83,10 +83,11 @@ int main(int argc, char *argv[]) {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distribX(0, screenWidth);
         std::uniform_int_distribution<> distribY(0, screenHeight);
+        std::uniform_int_distribution<> distribRGB(0, 255);
         PixelData pixel;
         pixel.x = distribX(gen);
         pixel.y = distribY(gen);
-        pixel.r = 255; pixel.g = 0; pixel.b = 0;
+        pixel.r = distribRGB(gen); pixel.g = distribRGB(gen); pixel.b = distribRGB(gen);
         MPI_Send(&pixel, 1, mpi_pixelData_type, 0, 0, MPI_COMM_WORLD);
     }
 
