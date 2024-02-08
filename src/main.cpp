@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
     const int screenWidth = 800;
     const int screenHeight = 600;
 
+    int finished_workers = 0;
+
     init_mpi_data_structs();
 
     if(rank == 0) {
@@ -67,13 +69,13 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderClear(renderer);
-            SDL_RenderPresent(renderer);
-            
-            PixelData pixel;
-            MPI_Recv(&pixel, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-            setPixel(renderer, pixel.x, pixel.y, pixel.r, pixel.g, pixel.b);
+            if(finished_workers < num_tasks-1) {
+                PixelData pixel;
+                MPI_Recv(&pixel, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+                setPixel(renderer, pixel.x, pixel.y, pixel.r, pixel.g, pixel.b);
+                SDL_RenderPresent(renderer);
+                finished_workers++;
+            }
         }
     }
     else {
@@ -88,9 +90,11 @@ int main(int argc, char *argv[]) {
         MPI_Send(&pixel, 1, mpi_pixelData_type, 0, 0, MPI_COMM_WORLD);
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    if(rank == 0) {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+    }
 
     MPI_Finalize();
     return 0;
