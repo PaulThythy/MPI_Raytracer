@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OS="$(uname -s)"
-NB_PROCESS=100
+NB_PROCESS=10
 
 build_type=Debug 
 
