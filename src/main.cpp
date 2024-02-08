@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
                 MPI_Irecv(&pixel, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
                 int flag = 0;
                 MPI_Test(&request, &flag, &status);
-                if(flag) {
+                if(flag==0) {
                     setPixel(renderer, pixel.x, pixel.y, pixel.r, pixel.g, pixel.b);
                     SDL_RenderPresent(renderer);
                     finished_workers++;
