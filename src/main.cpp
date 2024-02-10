@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
     MPI_Get_processor_name(hostname, &len);
 
     MPI_Status status;
+    MPI_Request request;
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
@@ -60,6 +61,9 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
+        PixelData pixel_received;
+        MPI_Irecv(&pixel_received, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
+
         bool running = true;
         SDL_Event e;
         while(running) {
@@ -70,26 +74,31 @@ int main(int argc, char *argv[]) {
             }
 
             if(finished_workers < num_tasks-1) {
-                PixelData pixel;
-                MPI_Recv(&pixel, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-                setPixel(renderer, pixel.x, pixel.y, pixel.r, pixel.g, pixel.b);
-                SDL_RenderPresent(renderer);
-                finished_workers++;
+                
+                
+                int flag = 0;
+                MPI_Test(&request, &flag, &status);
+                if(flag) {
+                    setPixel(renderer, pixel_received.x, pixel_received.y, pixel_received.r, pixel_received.g, pixel_received.b);
+                    SDL_RenderPresent(renderer);
+                    finished_workers++;
+                    MPI_Irecv(&pixel_received, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
+                }
             }
         }
     }
     else {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distribX(0, screenWidth-1);
-        std::uniform_int_distribution<> distribY(0, screenHeight-1);
+        std::uniform_int_distribution<> distribX(0, screenWidth);
+        std::uniform_int_distribution<> distribY(0, screenHeight);
         std::uniform_int_distribution<> distribRGB(0, 255);
-        PixelData pixel;
-        pixel.x = distribX(gen);
-        pixel.y = distribY(gen);
-        //pixel.r = distribRGB(gen); pixel.g = distribRGB(gen); pixel.b = distribRGB(gen);
-        pixel.r = 0; pixel.g = 255; pixel.b = 0;
-        MPI_Send(&pixel, 1, mpi_pixelData_type, 0, 0, MPI_COMM_WORLD);
+        PixelData pixel_to_send;
+        pixel_to_send.x = distribX(gen);
+        pixel_to_send.y = distribY(gen);
+        pixel_to_send.r = distribRGB(gen); pixel_to_send.g = distribRGB(gen); pixel_to_send.b = distribRGB(gen);
+        MPI_Isend(&pixel_to_send, 1, mpi_pixelData_type, 0, 0, MPI_COMM_WORLD, &request);
+        MPI_Wait(&request, &status);
     }
 
     if(rank == 0) {
