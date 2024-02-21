@@ -16,6 +16,10 @@ void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
 }
 
 int main(int argc, char *argv[]) {
+
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+
     int num_tasks, rank, len;
 
     char hostname[MPI_MAX_PROCESSOR_NAME];
@@ -28,14 +32,17 @@ int main(int argc, char *argv[]) {
 
     MPI_Get_processor_name(hostname, &len);
 
+    if(num_tasks > screenHeight * screenWidth || num_tasks < 2) {
+        std::cout << "Program needs at least 2 processes and less than the image resolution" << std::endl;
+        MPI_Finalize();
+        return 1;
+    }
+
     MPI_Status status;
     MPI_Request request;
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
-
-    const int screenWidth = 800;
-    const int screenHeight = 600;
 
     int finished_workers = 0;
 
