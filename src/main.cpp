@@ -9,6 +9,7 @@
 #include <random>
 
 #include "mpi_data_struct.h"
+#include "application.h"
 
 void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, 1);
