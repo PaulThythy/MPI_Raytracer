@@ -11,7 +11,7 @@ class Application {
 
 private:
     SDL_context sdl_ctx;
-    MPI_context mpi_ctx;
+    MPI_context* mpi_ctx;
 
     //Renderer* renderer;
 
