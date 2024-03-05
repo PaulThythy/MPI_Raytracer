@@ -1,10 +1,3 @@
-#ifdef _WIN32
-	#include "../libs/MPI/Include/mpi.h"
-    #include <SDL.h>
-#elif __linux__
-	#include <mpi.h>
-    #include <SDL2/SDL.h>
-#endif
 #include <iostream>
 #include <random>
 
@@ -18,7 +11,7 @@ void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
 
 int main(int argc, char *argv[]) {
 
-    const int screenWidth = 800;
+    /*const int screenWidth = 800;
     const int screenHeight = 600;
 
     int num_tasks, rank, len;
@@ -116,5 +109,8 @@ int main(int argc, char *argv[]) {
     }
 
     MPI_Finalize();
-    return 0;
+    return 0;*/
+
+    Application app(argc, argv);
+    return app.execute();
 }

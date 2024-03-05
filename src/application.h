@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-
 extern int G_WINDOW_WIDTH;
 extern int G_WINDOW_HEIGHT;
 
@@ -19,7 +18,7 @@ private:
     bool isRunning;
 
 public:
-    Application();
+    Application(int argc, char *argv[]);
     ~Application();
 
     void init();
