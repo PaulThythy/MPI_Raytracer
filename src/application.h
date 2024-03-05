@@ -19,9 +19,7 @@ private:
 
 public:
     Application(int argc, char *argv[]);
-    ~Application();
 
-    void init();
     int execute();
     void exit();
 };

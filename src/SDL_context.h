@@ -17,14 +17,13 @@ private:
 
 public:
     SDL_context();
-    ~SDL_context();
 
     bool initSDL();
     void endSDL();
 
     void onEvent(SDL_Event* event);
 
-    bool eventHandling();
+    void eventHandling();
 
     bool getStopSDL();
 };

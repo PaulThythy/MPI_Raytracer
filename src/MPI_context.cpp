@@ -1,5 +1,7 @@
 #include "MPI_context.h"
 
+MPI_context::MPI_context() {}
+
 MPI_context::MPI_context(int argc, char *argv[]) {
     initMPI(argc, argv);
 }

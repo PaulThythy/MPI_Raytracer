@@ -46,10 +46,10 @@ void SDL_context::onEvent(SDL_Event* event) {
 
 bool SDL_context::getStopSDL() { return stop_flag; }
 
-/*bool SDL_context::eventHandling() {
+void SDL_context::eventHandling() {
     SDL_Event event;
 
     while (SDL_PollEvent(&event) != 0) {
         onEvent(&event);
     }
-}*/
+}
