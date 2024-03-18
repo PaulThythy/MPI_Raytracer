@@ -10,7 +10,7 @@ extern int G_WINDOW_HEIGHT;
 class Application {
 
 private:
-    SDL_context sdl_ctx;
+    SDL_context* sdl_ctx;
     MPI_context* mpi_ctx;
 
     //Renderer* renderer;
@@ -19,8 +19,9 @@ private:
 
 public:
     Application(int argc, char *argv[]);
+    ~Application();
 
-    int execute();
+    void execute();
     void exit();
 };
 

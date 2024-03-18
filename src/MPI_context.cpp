@@ -3,10 +3,6 @@
 MPI_context::MPI_context() {}
 
 MPI_context::MPI_context(int argc, char *argv[]) {
-    initMPI(argc, argv);
-}
-
-void MPI_context::initMPI(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

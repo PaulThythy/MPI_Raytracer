@@ -20,7 +20,6 @@ public:
     MPI_context(int argc, char *argv[]);
     MPI_context();
 
-    void initMPI(int argc, char *argv[]);
     void endMPI();
 
     int getRank();
