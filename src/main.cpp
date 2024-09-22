@@ -9,9 +9,9 @@ void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
     SDL_RenderDrawPoint(renderer, x, y);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
 
-    /*const int screenWidth = 800;
+    const int screenWidth = 800;
     const int screenHeight = 600;
 
     int num_tasks, rank, len;
@@ -26,11 +26,13 @@ int main(int argc, char *argv[]) {
 
     MPI_Get_processor_name(hostname, &len);
 
-    if(num_tasks > screenHeight * screenWidth || num_tasks < 2) {
+    std::cout << "Process " << rank << " of " << num_tasks << " on " << hostname << std::endl;
+
+    /* if(num_tasks > screenHeight * screenWidth || num_tasks < 2) {
         std::cout << "Program needs at least 2 processes and less than the image resolution" << std::endl;
         MPI_Finalize();
         return 1;
-    }
+    } */
 
     MPI_Status status;
     MPI_Request request;
@@ -43,8 +45,11 @@ int main(int argc, char *argv[]) {
     init_mpi_data_structs();
 
     if(rank == 0) {
+        std::cout << "Process "<< rank << ": Entering window creation section" << std::endl;
+
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+            MPI_Finalize();
             return 1;
         }
 
@@ -52,6 +57,7 @@ int main(int argc, char *argv[]) {
         if (window == nullptr) {
             std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
             SDL_Quit();
+            MPI_Finalize();
             return 1;
         }
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -59,8 +65,11 @@ int main(int argc, char *argv[]) {
             SDL_DestroyWindow(window);
             std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
             SDL_Quit();
+            MPI_Finalize();
             return 1;
         }
+
+        std::cout << "Process 0: Window created successfully" << std::endl;
 
         PixelData pixel_received;
         MPI_Irecv(&pixel_received, 1, mpi_pixelData_type, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
@@ -109,8 +118,8 @@ int main(int argc, char *argv[]) {
     }
 
     MPI_Finalize();
-    return 0;*/
-
-    Application app(argc, argv);
     return 0;
+
+    /*Application app(argc, argv);
+    return 0;*/
 }
