@@ -2,14 +2,12 @@
 
 #include "SDL_context.h"
 
-SDL_context::SDL_context() {
+SDL::SDL_context::SDL_context() {
     sdl_window = NULL;
     sdl_renderer = NULL;
-
-    initSDL();
 }
 
-bool SDL_context::initSDL() {
+bool SDL::SDL_context::initSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
@@ -32,21 +30,21 @@ bool SDL_context::initSDL() {
     return true;
 }
 
-void SDL_context::endSDL() {
+void SDL::SDL_context::endSDL() {
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
     SDL_Quit();
 }
 
-void SDL_context::onEvent(SDL_Event* event) {
+void SDL::SDL_context::onEvent(SDL_Event* event) {
     if (event->type == SDL_QUIT) {
         stop_flag = true;
     }
 }
 
-bool SDL_context::getStopSDL() { return stop_flag; }
+bool SDL::SDL_context::getStopSDL() { return stop_flag; }
 
-void SDL_context::eventHandling() {
+void SDL::SDL_context::eventHandling() {
     SDL_Event event;
 
     while (SDL_PollEvent(&event) != 0) {

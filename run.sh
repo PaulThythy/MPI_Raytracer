@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OS="$(uname -s)"
-NB_PROCESS=2
+NB_PROCESS=5
 
 build_type=Debug 
 
@@ -14,7 +14,7 @@ cmake --build build/$build_type --target MPI_Raytracer
 if [ $? -eq 0 ]; then
 	echo "Compilation successful. Running the program..."
 	
-	mpirun --oversubscribe -np ${NB_PROCESS} ./build/*/MPI_Raytracer
+	mpirun --oversubscribe --report-bindings -np ${NB_PROCESS} ./build/*/MPI_Raytracer
 else
 	echo "Compilation failed. Please check the error messages."
 fi

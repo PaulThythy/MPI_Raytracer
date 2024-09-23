@@ -1,11 +1,7 @@
 #ifndef MPI_DATA_STRUCT_H
 #define MPI_DATA_STRUCT_H
 
-#ifdef _WIN32
-	#include "../libs/MPI/Include/mpi.h"
-#elif __linux__
-	#include <mpi.h>
-#endif
+#include <mpi.h>
 
 struct PixelData {
     //coordinates of the pixel in the image
