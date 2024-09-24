@@ -13,7 +13,7 @@ bool SDL::SDL_context::initSDL() {
         return false;
     }
 
-    sdl_window = SDL_CreateWindow("MPI_Raytracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
+    sdl_window = SDL_CreateWindow("MPI_Raytracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if (sdl_window == nullptr) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         SDL_Quit();

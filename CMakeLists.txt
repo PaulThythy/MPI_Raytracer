@@ -14,6 +14,9 @@ file(GLOB_RECURSE RAYTRACER_SOURCES "src/*")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/libs/SDL EXCLUDE_FROM_ALL)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/libs/glm/glm)
+include_directories(${PROJECT_SOURCE_DIR}/libs/glm/glm)
+
 add_executable(MPI_Raytracer ${RAYTRACER_SOURCES})
 
-target_link_libraries(MPI_Raytracer PRIVATE SDL2::SDL2 MPI::MPI_CXX)
+target_link_libraries(MPI_Raytracer PRIVATE SDL2::SDL2 MPI::MPI_CXX glm::glm)

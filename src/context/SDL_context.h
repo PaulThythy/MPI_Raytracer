@@ -2,6 +2,7 @@
 #define SDL_CONTEXT_H
 
 #include <SDL2/SDL.h>
+#include "../globals/globals.h"
 
 namespace SDL {
     class SDL_context {

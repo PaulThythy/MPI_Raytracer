@@ -36,10 +36,12 @@ void Application::execute() {
 
         /* if (sdl_ctx->getStopSDL()) {
             isRunning = false;
-        } */
+        } */ 
 
         //std::cout << "I'm the rank : " << mpi_ctx->getRank() << std::endl;
         //render
+        
+        
 
     }
 }

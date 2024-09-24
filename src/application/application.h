@@ -4,8 +4,8 @@
 extern int G_WINDOW_WIDTH;
 extern int G_WINDOW_HEIGHT;
 
-#include "context/SDL_context.h"
-#include "context/MPI_context.h"
+#include "../context/SDL_context.h"
+#include "../context/MPI_context.h"
 
 class Application {
 

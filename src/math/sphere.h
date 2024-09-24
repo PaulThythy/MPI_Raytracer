@@ -1,41 +1,36 @@
-#pragma once
+#ifndef SPHERE_H
+#define SPHERE_H
 
-#include <iostream>
-#include <cmath>
+#include "hitableObject.h"
+#include "ray.h"
 
-#include "vector3.h"
+namespace Sphere {
 
-struct Sphere {
-    Vector3 center;
-    double radius;
-    //add material member
+    struct Sphere : public Hitable::HitableObject {
+        glm::vec3 m_center;
+        double m_radius;
+        //add material member
 
-    inline Sphere(const Vector3& _center, const double _radius): center(_center), radius(_radius) {}
+        inline Sphere(const glm::vec3& _center, const double _radius): center(_center), radius(_radius) {}
 
-    inline ~Sphere() {}
+        inline ~Sphere() {}
 
-    inline Vector3 normalAt(const Vector3& intersection) const {
-        Vector3 norm(intersection.x - center.x, intersection.y - center.y, intersection.z - center.z);
-        return norm.normalize();
+        inline bool intersect(const Ray::Ray& ray, float& t) const override {
+            glm::vec3 oc = ray.m_origin - m_center;
+            double a = glm::dot(ray.m_direction, ray.m_direction);
+            double b = 2.0f * glm::dot(oc, ray.m_direction);
+            double c = glm::dot(oc, oc) - m_radius * m_radius;
+            double discriminant = b * b - 4 * a * c;
+
+            if (discriminant < 0) {
+                return false;
+            }
+            else {
+                t = (-b - sqrt(discriminant)) / (2.0f * a);
+                return true;
+            }
+        }
     }
+}
 
-    inline double distance(const Vector3& point) {
-        int x1 = pow(point.x - this->center.x, 2);
-        int y1 = pow(point.y - this->center.y, 2);
-        int z1 = pow(point.z - this->center.z, 2);
-
-        return sqrt(x1 + y1 + z1);
-    }
-
-    inline bool isInside(const Vector3& point) {
-        return distance(point) < (pow(this->radius, 2));
-    }
-
-    inline bool isOn(const Vector3& point) {
-        return distance(point) == (pow(this->radius, 2));
-    }
-
-    inline bool isOutside(const Vector3& point) {
-        return distance(point) > (pow(this->radius, 2));
-    }
-};
+#endif
