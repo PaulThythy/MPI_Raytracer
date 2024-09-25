@@ -3,7 +3,7 @@
 OS="$(uname -s)"
 NB_PROCESS=5
 
-build_type=Debug 
+build_type=Release 
 
 #Generate the Makefile using CMake
 cmake -S . -B build/$build_type -G "Ninja" -DCMAKE_BUILD_TYPE=$build_type

@@ -11,7 +11,7 @@ namespace Sphere {
         double m_radius;
         //add material member
 
-        inline Sphere(const glm::vec3& _center, const double _radius): center(_center), radius(_radius) {}
+        inline Sphere(const glm::vec3& _center, const double _radius): m_center(_center), m_radius(_radius) {}
 
         inline ~Sphere() {}
 
@@ -30,7 +30,7 @@ namespace Sphere {
                 return true;
             }
         }
-    }
+    };
 }
 
 #endif

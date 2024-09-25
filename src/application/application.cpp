@@ -1,6 +1,10 @@
 #include <iostream>
 
+#include <memory>
+
 #include "application.h"
+#include "scene.h"
+#include "../math/sphere.h"
 
 Application::Application(int argc, char *argv[]) {
     isRunning = true;
@@ -31,6 +35,13 @@ Application::~Application() {
 }
 
 void Application::execute() {
+    glm::vec3 lookFrom(13., 2., 3.);
+    glm::vec3 lookAt(0., 0., 0.);
+    glm::vec3 up(0., 1., 0.);
+    Camera::Camera cam(lookFrom, lookAt, up);
+    Scene::Scene scene(cam);
+    scene.addObject(std::make_shared<Sphere::Sphere>(glm::vec3(0., 0., 0.), 1.0));
+
     while(isRunning) {
         //sdl_ctx->eventHandling();
 
@@ -40,8 +51,7 @@ void Application::execute() {
 
         //std::cout << "I'm the rank : " << mpi_ctx->getRank() << std::endl;
         //render
-        
-        
+
 
     }
 }
