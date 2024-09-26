@@ -4,11 +4,6 @@
 
 #include "application/application.h"
 
-void setPixel(SDL_Renderer* renderer, int x, int y, int r, int g, int b) {
-    SDL_SetRenderDrawColor(renderer, r, g, b, 1);
-    SDL_RenderDrawPoint(renderer, x, y);
-}
-
 int main(int argc, char **argv) {
 
     /*

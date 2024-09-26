@@ -1,11 +1,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-extern int G_WINDOW_WIDTH;
-extern int G_WINDOW_HEIGHT;
-
 #include "../context/SDL_context.h"
 #include "../context/MPI_context.h"
+#include "scene.h"
 
 class Application {
 
@@ -18,6 +16,8 @@ private:
 public:
     Application(int argc, char *argv[]);
     ~Application();
+
+    void initScene();
 
     void execute();
 };
