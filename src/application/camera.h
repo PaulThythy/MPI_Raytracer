@@ -60,13 +60,13 @@ struct Camera {
     }
 
     // Fonction pour obtenir un rayon en fonction des coordonnées u et v
-    inline Ray::Ray getRay(float u, float v) {
+    inline Hitable::Ray getRay(float u, float v) {
         glm::vec3 rd = Random::randomInUnitDisk() * m_lensRadius;
         glm::vec3 offset = m_u * rd.x + m_v * rd.y;
 
         glm::vec3 direction = m_lowerLeftCorner + m_viewportWidthVec * u + m_viewportHeightVec * v - m_origin - offset;
 
-        return Ray::Ray(m_origin + offset, direction);
+        return Hitable::Ray(m_origin + offset, direction);
     }
 
 };

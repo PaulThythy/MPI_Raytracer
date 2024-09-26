@@ -4,7 +4,7 @@
 #include "hitableObject.h"
 #include "ray.h"
 
-namespace Sphere {
+namespace Hitable {
 
     struct Sphere : public Hitable::HitableObject {
         glm::vec3 m_center;
@@ -15,7 +15,7 @@ namespace Sphere {
 
         inline ~Sphere() {}
 
-        inline bool intersect(const Ray::Ray& ray, float& t) const override {
+        inline bool intersect(const Hitable::Ray& ray, float& t) const override {
             glm::vec3 oc = ray.m_origin - m_center;
             double a = glm::dot(ray.m_direction, ray.m_direction);
             double b = 2.0f * glm::dot(oc, ray.m_direction);

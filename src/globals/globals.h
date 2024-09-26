@@ -5,8 +5,8 @@
 
 namespace Config {
 
-    inline const int WINDOW_WIDTH = 800;
-    inline const int WINDOW_HEIGHT = 600;
+    inline const int WINDOW_WIDTH = 1500;
+    inline const int WINDOW_HEIGHT = 1200;
 
     inline const int SAMPLES = 1;
 

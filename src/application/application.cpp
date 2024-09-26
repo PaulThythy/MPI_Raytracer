@@ -4,6 +4,7 @@
 
 #include "application.h"
 #include "math/sphere.h"
+#include "math/triangle.h"
 #include "globals/globals.h"
 #include "random/random.h"
 
@@ -39,7 +40,7 @@ Application::~Application() {
 void Application::initScene() {
     glm::vec3 lookFrom(13.0f, 2.0f, 3.0f); 
     glm::vec3 lookAt(0.0f, 0.0f, 0.0f);    
-    glm::vec3 up(0.0f, 1.0f, 0.0f);       
+    glm::vec3 up(0.0f, -1.0f, 0.0f);       
     float vfov = 90.0f;                    
     float aspectRatio = static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT);
     float aperture = 0.0f;                  
@@ -55,12 +56,14 @@ void Application::execute() {
 
     Camera& cam = m_scene->m_camera;
 
-    auto sphere1 = std::make_shared<Sphere::Sphere>(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
-    auto sphere2 = std::make_shared<Sphere::Sphere>(glm::vec3(2.1f, 2.1f, 2.1f), 0.5f);
-    auto sphere3 = std::make_shared<Sphere::Sphere>(glm::vec3(3.f, 2.1f, 2.1f), 1.0f);
+    auto sphere1 = std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f);
+    auto sphere2 = std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f);
+    auto sphere3 = std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f);
+    auto triangle = std::make_shared<Hitable::Triangle>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 5.0f));
     m_scene->addObject(sphere1);
     m_scene->addObject(sphere2);
     m_scene->addObject(sphere3);
+    m_scene->addObject(triangle);
 
     // ray tracing loops
     //#pragma omp parallel for schedule(dynamic, 1)
@@ -72,7 +75,7 @@ void Application::execute() {
                 // Normalize x, y coordinates in the scene
                 float u = (i + Random::randomDouble()) / (image_width - 1);
                 float v = (j + Random::randomDouble()) / (image_height - 1);
-                Ray::Ray ray = cam.getRay(u, v);
+                Hitable::Ray ray = cam.getRay(u, v);
 
                 float t;
                 bool hit = false;
@@ -89,6 +92,9 @@ void Application::execute() {
                         }
                         else if (object == m_scene->m_objects[2]) { 
                             hitColor = glm::vec3(0.0f, 255.0f, 0.0f); 
+                        }
+                        else if (object == m_scene->m_objects[3]) { 
+                            hitColor = glm::vec3(255.0f, 255.0f, 255.0f); 
                         }
                         hit = true;
                         break; // Arrêter après la première intersection
