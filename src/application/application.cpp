@@ -3,9 +3,9 @@
 #include <memory>
 
 #include "application.h"
-#include "../math/sphere.h"
-#include "../globals/globals.h"
-#include "../random/random.h"
+#include "math/sphere.h"
+#include "globals/globals.h"
+#include "random/random.h"
 
 Application::Application(int argc, char *argv[]) {
     isRunning = true;
@@ -16,6 +16,7 @@ Application::Application(int argc, char *argv[]) {
         sdl_ctx = new SDL::SDL_context();
 
         if (sdl_ctx->initSDL()) {
+            initScene();
             execute();
         } else {
             isRunning = false;
@@ -35,36 +36,36 @@ Application::~Application() {
     }
 }
 
+void Application::initScene() {
+    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f); 
+    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);    
+    glm::vec3 up(0.0f, 1.0f, 0.0f);       
+    float vfov = 90.0f;                    
+    float aspectRatio = static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT);
+    float aperture = 0.0f;                  
+    float focusDist = 1.0f;
+
+    Camera cam(lookFrom, lookAt, up, vfov, aspectRatio, aperture, focusDist);
+    m_scene = std::make_unique<Scene>(cam);
+}
+
 void Application::execute() {
     int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
-    glm::vec3 lookFrom(13., 2., 3.);
-    glm::vec3 lookAt(0.0, 0.0, 0.0);
-    glm::vec3 up(0.0, 1.0, 0.0);
-    /*double vfov = 90.0;                                                             // Vertical field of view in degrees
-    double aspectRatio = double(image_width) / double(image_height);
-    double aperture = 0.0;                                                          // No depth of field for simplicity
-    double focusDist = 1.0;                                                         // Focusing distance
-    Camera cam(lookFrom, lookAt, up, vfov, aspectRatio, aperture, focusDist);
-    Scene scene(cam);
-    auto sphere1 = std::make_shared<Sphere::Sphere>(glm::vec3(0., 0., 0.), 2.0);
-    auto sphere2 = std::make_shared<Sphere::Sphere>(glm::vec3(2.1, 2.1, 2.1), 0.5);
-    scene.addObject(sphere1);
-    scene.addObject(sphere2);*/
+    Camera& cam = m_scene->m_camera;
 
-    Camera cam(lookFrom, lookAt, up);
-    Scene scene(cam);
-    auto sphere1 = std::make_shared<Sphere::Sphere>(glm::vec3(0., 0., 0.), 2.0);
-    auto sphere2 = std::make_shared<Sphere::Sphere>(glm::vec3(2.1, 2.1, 2.1), 0.5);
-    scene.addObject(sphere1);
-    scene.addObject(sphere2);
+    auto sphere1 = std::make_shared<Sphere::Sphere>(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
+    auto sphere2 = std::make_shared<Sphere::Sphere>(glm::vec3(2.1f, 2.1f, 2.1f), 0.5f);
+    m_scene->addObject(sphere1);
+    m_scene->addObject(sphere2);
 
     // ray tracing loops
+    //#pragma omp parallel for schedule(dynamic, 1)
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
             glm::vec3 pixelColor(0.0, 0.0, 0.0);
-
+            
             for (int s = 0; s < Config::SAMPLES; ++s) {
                 // Normalize x, y coordinates in the scene
                 float u = (i + Random::randomDouble()) / (image_width - 1);

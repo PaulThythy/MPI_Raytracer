@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "../math/ray.h"
-#include "../globals/globals.h"
-#include "../random/random.h"
+#include "math/ray.h"
+#include "globals/globals.h"
+#include "random/random.h"
 
 
 struct Camera {

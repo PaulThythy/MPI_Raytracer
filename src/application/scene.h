@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "camera.h"
-#include "../math/hitableObject.h"
+#include "math/hitableObject.h"
 
 
 struct Scene {

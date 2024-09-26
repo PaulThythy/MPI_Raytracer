@@ -1,8 +1,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "../context/SDL_context.h"
-#include "../context/MPI_context.h"
+#include <memory>
+
+#include "context/SDL_context.h"
+#include "context/MPI_context.h"
 #include "scene.h"
 
 class Application {
@@ -12,6 +14,8 @@ private:
     MPI::MPI_context* mpi_ctx;
 
     bool isRunning;
+
+    std::unique_ptr<Scene> m_scene;
 
 public:
     Application(int argc, char *argv[]);
