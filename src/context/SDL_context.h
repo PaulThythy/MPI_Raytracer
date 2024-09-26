@@ -8,8 +8,8 @@ namespace SDL {
     class SDL_context {
 
     private:
-        SDL_Window* sdl_window;
-        SDL_Renderer* sdl_renderer;
+        SDL_Window* m_SDLwindow;
+        SDL_Renderer* m_SDLrenderer;
 
         bool stop_flag = false;
 
@@ -24,6 +24,9 @@ namespace SDL {
         void eventHandling();
 
         bool getStopSDL();
+
+        void setPixel(int x, int y, int r, int g, int b);
+        void updateScreen();
     };
 }
 

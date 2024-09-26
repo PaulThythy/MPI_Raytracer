@@ -2,79 +2,74 @@
 #define CAMERA_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include "../math/ray.h"
+#include "../globals/globals.h"
+#include "../random/random.h"
 
 namespace Camera {
     struct Camera {
+        
         glm::vec3 m_origin;
 
-        //helpers
+        // Auxiliary vectors
         glm::vec3 m_right;
         glm::vec3 m_lowerLeftCorner;
 
-        //viewport info
+        // Informations sur le viewport
         glm::vec3 m_viewportWidthVec;
         glm::vec3 m_viewportHeightVec;
-
-        glm::vec3 m_orig;
 
         glm::vec3 m_lookFrom;
         glm::vec3 m_lookAt;
         glm::vec3 m_up;
-        double m_vfov;
-        double m_aspectRatio;
+        double m_vfov;         // Vertical field of view in degrees
+        double m_aspectRatio;  // Aspect ratio (width/height)
 
-        double m_lensRadius;
+        double m_lensRadius;   // Lens radius for depth of field
 
-        Camera( const glm::vec3& _origin, const glm::vec3& _lookAt, const glm::vec3& _up, 
-                        double ang = 40, double aspect = 1080./1920., double aperture = 0, double focusDist = 1.) 
-                        : m_origin(_origin), m_lookAt(_lookAt), m_up(_up), m_lensRadius(aperture/2.) {
-
-            double theta = glm::radians(m_vfov);
-            double viewportWidth = 2.0 * tan(theta / 2);
-            double viewportHeight = m_aspectRatio * viewportWidth;
-
-            glm::vec3 lookVec = glm::normalize(_origin - _lookAt);
-            glm::vec3 u = glm::normalize(glm::cross(_up, lookVec));
-            glm::vec3 v = glm::cross(lookVec, u);
-
-            m_up = glm::normalize(v);
-            m_right = glm::normalize(u);
-
-            //m_lowerLeftCorner = _origin - viewportWidth / 2. * focusDist * m_right - viewportHeight / 2. * focusDist * m_up - focusDist * lookVec;
-
-            double half_viewport_width = (viewportWidth / 2.0) * focusDist;
-            double half_viewport_height = (viewportHeight / 2.0) * focusDist;
-            glm::vec3 half_width = multiplyVectWithScalar(m_right, half_viewport_width);
-            glm::vec3 half_height = multiplyVectWithScalar(m_up, half_viewport_height);
-            glm::vec3 focal_length = multiplyVectWithScalar(lookVec, focusDist);
-            m_lowerLeftCorner = m_origin - half_width - half_height - focal_length;
+        // camera basis vectors
+        glm::vec3 m_u, m_v, m_w;
 
 
-            m_viewportWidthVec = multiplyVectWithScalar(m_right, viewportWidth * focusDist);
-            m_viewportHeightVec = multiplyVectWithScalar(m_up, viewportHeight * focusDist);
+        Camera(const glm::vec3& lookFrom, const glm::vec3& lookAt, const glm::vec3& up,
+            double vfov = 90.0, double aspectRatio = Config::WINDOW_WIDTH/Config::WINDOW_HEIGHT, double aperture = 0., double focusDist = 1.) 
+        {
+            m_lensRadius = aperture / 2;
+            m_lookFrom = lookFrom;
+            m_lookAt = lookAt;
+            m_up = up;
+            m_vfov = vfov;
+            m_aspectRatio = aspectRatio;
 
-            m_orig = m_lowerLeftCorner - m_lookFrom;
-        }
-        
-        
-        /*inline Ray& getRay(double x, double y) const {
-            if (0. == lensRadius) 
-                return Ray(m_lookFrom, m_orig + x * m_viewportWidthVec + y * m_viewportHeightVec);
+            double theta = glm::radians(vfov);
+            double h = tan(theta / 2);
+            double viewportHeight = 2.0 * h;
+            double viewportWidth = aspectRatio * viewportHeight;
 
-            const glm::vec3 rvec = m_lensRadius * getRandomInUnitSphere();
-            const glm::vec3 off = rvec.X * m_right + rvec.Y * m_up;
+            m_w = glm::normalize(lookFrom - lookAt);
+            m_u = glm::normalize(glm::cross(up, m_w));
+            m_v = glm::cross(m_w, m_u);
 
-            return Ray(m_lookFrom + off, m_orig + x * m_viewportWidthVec + y * m_viewportHeightVec - off);
-        }*/
+            m_origin = lookFrom;
+            m_viewportWidthVec = multiplyVectWithScalar(multiplyVectWithScalar(m_u, viewportWidth), focusDist);
+            m_viewportHeightVec = multiplyVectWithScalar(multiplyVectWithScalar(m_v, viewportHeight), focusDist);
 
-        inline Ray::Ray getRay(double x, double y) const {
-            glm::vec3 direction = m_lowerLeftCorner + multiplyVectWithScalar(m_viewportWidthVec, x) + multiplyVectWithScalar(m_viewportHeightVec, y) - m_origin;
-            return Ray::Ray(m_origin, glm::normalize(direction));
+            m_lowerLeftCorner = m_origin - m_viewportWidthVec / 2.0f - m_viewportHeightVec / 2.0f - multiplyVectWithScalar(m_w, focusDist);
         }
 
-        inline glm::vec3 multiplyVectWithScalar(const glm::vec3& vec, double scalar) {
+        // Fonction pour obtenir un rayon en fonction des coordonnées u et v
+        inline Ray::Ray getRay(double u, double v) {
+            glm::vec3 rd = multiplyVectWithScalar(Random::randomInUnitDisk(), m_lensRadius);
+            glm::vec3 offset = m_u * rd.x + m_v * rd.y;
+
+            glm::vec3 direction = m_lowerLeftCorner + multiplyVectWithScalar(m_viewportWidthVec, u) + multiplyVectWithScalar(m_viewportHeightVec, v) - m_origin - offset;
+
+            return Ray::Ray(m_origin + offset, direction);
+        }
+
+        inline glm::vec3 multiplyVectWithScalar(const glm::vec3& vec, double scalar) const {
             return glm::vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
         }
 
