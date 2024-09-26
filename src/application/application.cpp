@@ -57,8 +57,10 @@ void Application::execute() {
 
     auto sphere1 = std::make_shared<Sphere::Sphere>(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
     auto sphere2 = std::make_shared<Sphere::Sphere>(glm::vec3(2.1f, 2.1f, 2.1f), 0.5f);
+    auto sphere3 = std::make_shared<Sphere::Sphere>(glm::vec3(3.f, 2.1f, 2.1f), 1.0f);
     m_scene->addObject(sphere1);
     m_scene->addObject(sphere2);
+    m_scene->addObject(sphere3);
 
     // ray tracing loops
     //#pragma omp parallel for schedule(dynamic, 1)
@@ -73,13 +75,30 @@ void Application::execute() {
                 Ray::Ray ray = cam.getRay(u, v);
 
                 float t;
+                bool hit = false;
+                glm::vec3 hitColor(0.0f, 0.0f, 0.0f);
 
-                if (sphere1->intersect(ray, t)) {
-                    pixelColor += glm::vec3(255.0, 0.0, 0.0);
-                } else if(sphere2->intersect(ray, t)) {
-                    pixelColor += glm::vec3(0.0, 0.0, 255.0);
+                for (const auto& object : m_scene->m_objects) {
+                    if (object->intersect(ray, t)) {
+
+                        if (object == m_scene->m_objects[0]) { 
+                            hitColor = glm::vec3(255.0f, 0.0f, 0.0f); 
+                        }
+                        else if (object == m_scene->m_objects[1]) { 
+                            hitColor = glm::vec3(0.0f, 0.0f, 255.0f); 
+                        }
+                        else if (object == m_scene->m_objects[2]) { 
+                            hitColor = glm::vec3(0.0f, 255.0f, 0.0f); 
+                        }
+                        hit = true;
+                        break; // Arrêter après la première intersection
+                    }
+                }
+
+                if (hit) {
+                    pixelColor += hitColor;
                 } else {
-                    pixelColor += glm::vec3(0.0, 0.0, 0.0);
+                    pixelColor += glm::vec3(0.0f, 0.0f, 0.0f);
                 }
             }
 
