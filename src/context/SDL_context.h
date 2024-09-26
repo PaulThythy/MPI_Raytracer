@@ -11,19 +11,11 @@ namespace SDL {
         SDL_Window* m_SDLwindow;
         SDL_Renderer* m_SDLrenderer;
 
-        bool stop_flag = false;
-
     public:
         SDL_context();
 
         bool initSDL();
         void endSDL();
-
-        void onEvent(SDL_Event* event);
-
-        void eventHandling();
-
-        bool getStopSDL();
 
         void setPixel(int x, int y, int r, int g, int b);
         void updateScreen();

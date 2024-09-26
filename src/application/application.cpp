@@ -100,16 +100,23 @@ void Application::execute() {
     // update screen
     sdl_ctx->updateScreen();
 
+    SDL_Event event;
     while(isRunning) {
-        //sdl_ctx->eventHandling();
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) { 
+                std::cout << "SDL_QUIT event detected. Exiting...\n";
+                isRunning = false;
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE) { 
+                    std::cout << "ESCAPE key pressed. Exiting...\n";
+                    isRunning = false;
+                }
+            }
+        }
 
-        /* if (sdl_ctx->getStopSDL()) {
-            isRunning = false;
-        } */ 
+        //do stuff
 
-        //std::cout << "I'm the rank : " << mpi_ctx->getRank() << std::endl;
-        //render
-
-
+        //SDL_Delay(10);
     }
 }

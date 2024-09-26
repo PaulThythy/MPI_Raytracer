@@ -110,8 +110,7 @@ int main(int argc, char **argv) {
         SDL_Quit();
     }
 
-    MPI_Finalize();
-    return 0;*/
+    MPI_Finalize();*/
 
 
     /*int num_tasks, rank, len;
@@ -206,10 +205,9 @@ int main(int argc, char **argv) {
         SDL_Quit();
     }
 
-    MPI_Finalize();
-    return 0;*/
-
+    MPI_Finalize();*/
 
     Application app(argc, argv);
+
     return 0;
 }

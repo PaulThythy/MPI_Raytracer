@@ -36,22 +36,6 @@ void SDL::SDL_context::endSDL() {
     SDL_Quit();
 }
 
-void SDL::SDL_context::onEvent(SDL_Event* event) {
-    if (event->type == SDL_QUIT) {
-        stop_flag = true;
-    }
-}
-
-bool SDL::SDL_context::getStopSDL() { return stop_flag; }
-
-void SDL::SDL_context::eventHandling() {
-    SDL_Event event;
-
-    while (SDL_PollEvent(&event) != 0) {
-        onEvent(&event);
-    }
-}
-
 void SDL::SDL_context::setPixel(int x, int y, int r, int g, int b) {
     SDL_SetRenderDrawColor(m_SDLrenderer, r, g, b, 1);
     SDL_RenderDrawPoint(m_SDLrenderer, x, y);
