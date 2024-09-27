@@ -7,6 +7,8 @@
 
 #include "camera.h"
 #include "math/hitableObject.h"
+#include "math/sphere.h"
+#include "math/triangle.h"
 
 
 struct Scene {
@@ -18,6 +20,19 @@ struct Scene {
 
     inline void addObject(const std::shared_ptr<Hitable::HitableObject>& object) {
         m_objects.push_back(object);
+    }
+
+    inline void init() {
+        m_objects = {
+            std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f),
+            std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f),
+            std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f),
+            std::make_shared<Hitable::Triangle>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 10.0f))
+        };
+    }
+
+    inline void trace() {
+
     }
 };
 
