@@ -38,7 +38,7 @@ struct Scene {
         };
     }
 
-    inline void traceRays(SDL::SDL_context* sdlCtx) {
+    inline void render(SDL::SDL_context* sdlCtx) {
         int image_width = Config::WINDOW_WIDTH;
         int image_height = Config::WINDOW_HEIGHT;
 

@@ -66,7 +66,7 @@ Application::~Application() {
 }*/
 
 void Application::execute() {
-    m_scene->traceRays(m_sdlCtx);
+    m_scene->render(m_sdlCtx);
 
     SDL_Event event;
     while(m_isRunning) {
