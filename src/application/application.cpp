@@ -14,11 +14,21 @@ Application::Application(int argc, char *argv[]) {
 
     mpi_ctx = new MPI::MPI_context(argc, argv);
 
+    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f); 
+    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);    
+    glm::vec3 up(0.0f, -1.0f, 0.0f);       
+    float vfov = 90.0f;                    
+    float aspectRatio = static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT);
+    float aperture = 0.0f;                  
+    float focusDist = 1.0f;
+
+    Camera cam(lookFrom, lookAt, up, vfov, aspectRatio, aperture, focusDist);
+    m_scene = std::make_unique<Scene>(cam);
+
     if(mpi_ctx->getRank() == 0) {
         sdl_ctx = new SDL::SDL_context();
 
         if (sdl_ctx->initSDL()) {
-            initScene();
             execute();
         } else {
             isRunning = false;
@@ -36,19 +46,6 @@ Application::~Application() {
         sdl_ctx->endSDL();
         delete sdl_ctx;
     }
-}
-
-void Application::initScene() {
-    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f); 
-    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);    
-    glm::vec3 up(0.0f, -1.0f, 0.0f);       
-    float vfov = 90.0f;                    
-    float aspectRatio = static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT);
-    float aperture = 0.0f;                  
-    float focusDist = 1.0f;
-
-    Camera cam(lookFrom, lookAt, up, vfov, aspectRatio, aperture, focusDist);
-    m_scene = std::make_unique<Scene>(cam);
 }
 
 /*glm::vec3 rayColor(const Ray::Ray& ray, const Hitable::HitableObject& world, int depth) {
@@ -79,21 +76,12 @@ void Application::execute() {
 
     FrameBuffer fb(image_width, image_height);
 
-    auto sphere1 = std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f);
-    auto sphere2 = std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f);
-    auto sphere3 = std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f);
-    auto triangle = std::make_shared<Hitable::Triangle>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 10.0f));
-    m_scene->addObject(sphere1);
-    m_scene->addObject(sphere2);
-    m_scene->addObject(sphere3);
-    m_scene->addObject(triangle);
-
     // ray tracing loops
     //#pragma omp parallel for schedule(dynamic, 1)
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
             glm::vec3 pixelColor(0.0, 0.0, 0.0);
-            
+        
             for (int s = 0; s < Config::SAMPLES; ++s) {
                 // Normalize x, y coordinates in the scene
                 float u = (i + Random::randomDouble()) / (image_width - 1);

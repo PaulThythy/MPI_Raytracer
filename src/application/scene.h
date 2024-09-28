@@ -18,7 +18,7 @@ struct Scene {
     std::vector<std::shared_ptr<Hitable::HitableObject>> m_objects;
     std::vector<std::shared_ptr<Light>> m_lights;
 
-    inline Scene(const Camera& _camera) : m_camera(_camera) {}
+    inline Scene(const Camera& camera) : m_camera(camera) { init(); }
 
     inline void addObject(const std::shared_ptr<Hitable::HitableObject>& object) {
         m_objects.push_back(object);
@@ -28,14 +28,14 @@ struct Scene {
         m_lights.push_back(light);
     }
 
-    /*inline void init() {
+    inline void init() {
         m_objects = {
             std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f),
             std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f),
             std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f),
             std::make_shared<Hitable::Triangle>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 10.0f))
         };
-    }*/
+    }
 
     inline void trace() {
 
