@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "application.h"
-#include "math/sphere.h"
-#include "math/triangle.h"
+#include "renderer/sphere.h"
+#include "renderer/triangle.h"
 #include "globals/globals.h"
 #include "random/random.h"
 

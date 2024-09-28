@@ -6,9 +6,9 @@
 #include <iostream>
 
 #include "camera.h"
-#include "math/hitableObject.h"
-#include "math/sphere.h"
-#include "math/triangle.h"
+#include "renderer/hitableObject.h"
+#include "renderer/sphere.h"
+#include "renderer/triangle.h"
 
 
 struct Scene {

@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "math/ray.h"
+#include "renderer/ray.h"
 #include "globals/globals.h"
 #include "random/random.h"
 
