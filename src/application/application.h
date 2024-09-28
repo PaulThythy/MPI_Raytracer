@@ -10,10 +10,10 @@
 class Application {
 
 private:
-    SDL::SDL_context* sdl_ctx;
-    MPI::MPI_context* mpi_ctx;
+    SDL::SDL_context* m_sdlCtx;
+    MPI::MPI_context* m_mpiCtx;
 
-    bool isRunning;
+    bool m_isRunning;
 
     std::unique_ptr<Scene> m_scene;
 

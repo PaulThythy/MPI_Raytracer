@@ -11,7 +11,9 @@ namespace Hitable {
         double m_radius;
         //add material member
 
-        inline Sphere(const glm::vec3& _center, const double _radius): m_center(_center), m_radius(_radius) {}
+        inline Sphere(const glm::vec3& center, const double radius, const glm::vec3& albedo): m_center(center), m_radius(radius) {
+            m_albedo = albedo;
+        }
 
         inline ~Sphere() {}
 

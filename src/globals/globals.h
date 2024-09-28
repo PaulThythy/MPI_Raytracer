@@ -5,6 +5,7 @@
 
 namespace Config {
 
+    //TODO maybe make it a uint32 ?
     inline const int WINDOW_WIDTH = 1500;
     inline const int WINDOW_HEIGHT = 1200;
 

@@ -10,8 +10,11 @@ namespace Hitable {
         glm::vec3 m_v0, m_v1, m_v2;
         //add material member
 
-        inline Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
-            : m_v0(v0), m_v1(v1), m_v2(v2) {}
+        inline Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& albedo)
+            : m_v0(v0), m_v1(v1), m_v2(v2) {
+            
+            m_albedo = albedo; 
+        }
 
         inline ~Triangle() {}
 
