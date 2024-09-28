@@ -11,6 +11,8 @@ namespace Config {
     inline const int SAMPLES = 1;
     inline const int BOUNCES = 1;
 
+    //inline const int WORKERS;
+
     namespace MPI_Data {
 
         struct PixelData {

@@ -7,6 +7,7 @@
 #include "renderer/triangle.h"
 #include "globals/globals.h"
 #include "random/random.h"
+#include "frameBuffer/frameBuffer.h"
 
 Application::Application(int argc, char *argv[]) {
     isRunning = true;
@@ -50,11 +51,33 @@ void Application::initScene() {
     m_scene = std::make_unique<Scene>(cam);
 }
 
+/*glm::vec3 rayColor(const Ray::Ray& ray, const Hitable::HitableObject& world, int depth) {
+    Hitable::HitRecord rec;
+    float t;
+    if (depth <= 0)
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+
+    if (world.intersect(ray, t, rec)) {
+        Ray::Ray scattered;
+        glm::vec3 attenuation;
+        if (rec.materialPtr->scatter(ray, rec, attenuation, scattered))
+            return attenuation * rayColor(scattered, world, depth - 1);
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
+    // gradient background
+    glm::vec3 unitDirection = glm::normalize(ray.direction);
+    float t = 0.5f * (unitDirection.y + 1.0f);
+    return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
+}*/
+
 void Application::execute() {
     int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
     Camera& cam = m_scene->m_camera;
+
+    FrameBuffer fb(image_width, image_height);
 
     auto sphere1 = std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f);
     auto sphere2 = std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f);
@@ -85,19 +108,20 @@ void Application::execute() {
                     if (object->intersect(ray, t)) {
 
                         if (object == m_scene->m_objects[0]) { 
-                            hitColor = glm::vec3(255.0f, 0.0f, 0.0f); 
+                            hitColor = glm::vec3(255.0f, 0.0f, 0.0f);
                         }
                         else if (object == m_scene->m_objects[1]) { 
-                            hitColor = glm::vec3(0.0f, 0.0f, 255.0f); 
+                            hitColor = glm::vec3(0.0f, 0.0f, 255.0f);
                         }
                         else if (object == m_scene->m_objects[2]) { 
-                            hitColor = glm::vec3(0.0f, 255.0f, 0.0f); 
+                            hitColor = glm::vec3(0.0f, 255.0f, 0.0f);
                         }
                         else if (object == m_scene->m_objects[3]) { 
                             hitColor = glm::vec3(255.0f, 255.0f, 255.0f); 
                         }
                         hit = true;
-                        break; // Arrêter après la première intersection
+
+                        break; // stop after first intersection
                     }
                 }
 
@@ -117,13 +141,17 @@ void Application::execute() {
             int ir = static_cast<int>(glm::clamp(pixelColor.r * 255.0f, 0.0f, 255.0f));
             int ig = static_cast<int>(glm::clamp(pixelColor.g * 255.0f, 0.0f, 255.0f));
             int ib = static_cast<int>(glm::clamp(pixelColor.b * 255.0f, 0.0f, 255.0f));
+            glm::vec3 color(ir, ig, ib);
 
             sdl_ctx->setPixel(i, j, ir, ig, ib);
+            fb.setPixel(i, j, color);
+
         }
     }
 
     // update screen
     sdl_ctx->updateScreen();
+    fb.saveAsPPM("image.ppm");
 
     SDL_Event event;
     while(isRunning) {

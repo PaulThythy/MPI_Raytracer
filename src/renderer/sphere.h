@@ -30,6 +30,10 @@ namespace Hitable {
                 return true;
             }
         }
+
+        inline glm::vec3 getNormal(const glm::vec3& point) const override {
+            return glm::normalize(point - m_center);
+        }
     };
 }
 

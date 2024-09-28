@@ -49,6 +49,10 @@ namespace Hitable {
                 return false;
             }
         }
+
+        inline glm::vec3 getNormal(const glm::vec3& point) const override {
+            return glm::normalize(glm::cross(m_v1 - m_v0, m_v2 - m_v0));
+        }
     };
 }
 
