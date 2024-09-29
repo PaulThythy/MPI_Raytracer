@@ -1,6 +1,7 @@
 #include "scene.h"
 
 void Scene::init() {
+    //TODO add a namespace for the materials
     auto matSphere1 = std::make_shared<Lambertian>(glm::vec3(1.0f, 0.0f, 0.0f)); 
     auto matSphere2 = std::make_shared<Lambertian>(glm::vec3(0.0f, 0.0f, 1.0f)); 
     auto matSphere3 = std::make_shared<Lambertian>(glm::vec3(0.0f, 1.0f, 0.0f));
