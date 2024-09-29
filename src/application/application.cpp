@@ -9,16 +9,7 @@ Application::Application(int argc, char *argv[]) {
 
     m_mpiCtx = new MPI::MPI_context(argc, argv);
 
-    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f); 
-    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);    
-    glm::vec3 up(0.0f, -1.0f, 0.0f);       
-    float vfov = 90.0f;                    
-    float aspectRatio = static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT);
-    float aperture = 0.0f;                  
-    float focusDist = 1.0f;
-
-    Camera cam(lookFrom, lookAt, up, vfov, aspectRatio, aperture, focusDist);
-    m_scene = std::make_unique<Scene>(cam);
+    m_scene = std::make_unique<Scene>();
 
     if(m_mpiCtx->getRank() == 0) {
         m_sdlCtx = new SDL::SDL_context();
@@ -42,26 +33,6 @@ Application::~Application() {
         delete m_sdlCtx;
     }
 }
-
-/*glm::vec3 rayColor(const Ray::Ray& ray, const Hitable::HitableObject& world, int depth) {
-    Hitable::HitRecord rec;
-    float t;
-    if (depth <= 0)
-        return glm::vec3(0.0f, 0.0f, 0.0f);
-
-    if (world.intersect(ray, t, rec)) {
-        Ray::Ray scattered;
-        glm::vec3 attenuation;
-        if (rec.materialPtr->scatter(ray, rec, attenuation, scattered))
-            return attenuation * rayColor(scattered, world, depth - 1);
-        return glm::vec3(0.0f, 0.0f, 0.0f);
-    }
-
-    // gradient background
-    glm::vec3 unitDirection = glm::normalize(ray.direction);
-    float t = 0.5f * (unitDirection.y + 1.0f);
-    return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
-}*/
 
 void Application::execute() {
     m_scene->render(m_sdlCtx);

@@ -11,15 +11,17 @@ struct Light {
     virtual ~Light() = default;
 };
 
-struct DirectionalLight : public Light {
-    glm::vec3 m_direction; 
+namespace Lighting {
+    struct DirectionalLight : public Light {
+        glm::vec3 m_direction; 
 
-    DirectionalLight(const glm::vec3& pos, const glm::vec3& color, const float intens, const glm::vec3& dir)
-        : m_direction(dir) {
-            
-        m_position = pos; m_color = color; m_intensity = intens;
-    }
-};
+        DirectionalLight(const glm::vec3& pos, const glm::vec3& color, const float intens, const glm::vec3& dir)
+            : m_direction(dir) {
+                
+            m_position = pos; m_color = color; m_intensity = intens;
+        }
+    };
+}
 
 
 /*struct PointLight : public Light {

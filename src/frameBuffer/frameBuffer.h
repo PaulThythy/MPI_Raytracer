@@ -22,6 +22,7 @@ public:
 
 private:
     int m_width, m_height;
+    //TODO uint8 ?
     std::vector<glm::vec3> m_pixels;
 };
 

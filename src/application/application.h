@@ -21,8 +21,6 @@ public:
     Application(int argc, char *argv[]);
     ~Application();
 
-    void initScene();
-
     void execute();
 };
 

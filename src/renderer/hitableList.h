@@ -14,21 +14,9 @@
 struct HitableList {
     std::vector<std::shared_ptr<Hitable::HitableObject>> m_objects;
 
-    inline HitableList() { init(); }
+    HitableList() = default;
 
     inline void add(std::shared_ptr<Hitable::HitableObject> object) { m_objects.push_back(object); }
-
-    inline void init() {
-        auto matSphere1 = std::make_shared<Lambertian>(glm::vec3(1.0f, 0.0f, 0.0f)); 
-        auto matSphere2 = std::make_shared<Lambertian>(glm::vec3(0.0f, 0.0f, 1.0f)); 
-        auto matSphere3 = std::make_shared<Lambertian>(glm::vec3(0.0f, 1.0f, 0.0f));
-
-        m_objects = {
-            std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.0f, 0.0f), 2.f, matSphere1),
-            std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f, matSphere2),
-            std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f, matSphere3)
-        };
-    }
 
     inline bool intersect(const Ray::Ray& ray, float& t_min, float& t_max, HitRecord& rec) {
         HitRecord temp_rec;
