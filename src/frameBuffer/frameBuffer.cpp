@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include "frameBuffer.h"
+#include "globals/globals.h"
 
 FrameBuffer::FrameBuffer(int width, int height) 
     : m_width(width), m_height(height), m_pixels(width * height) {}
@@ -32,9 +33,18 @@ void FrameBuffer::saveAsPPM(const std::string& filename) const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             glm::vec3 color = getPixel(x, y);
+
+            // Normalize color with number of samples
+            color /= static_cast<float>(Config::SAMPLES);
+
+            // gamma correction
+            color = glm::sqrt(color);
+
+            //from 0 to 1 to 0 to 255
             int r = static_cast<int>(255.999 * glm::clamp(color.r, 0.0f, 1.0f));
             int g = static_cast<int>(255.999 * glm::clamp(color.g, 0.0f, 1.0f));
             int b = static_cast<int>(255.999 * glm::clamp(color.b, 0.0f, 1.0f));
+            
             file << r << " " << g << " " << b << "\n";
         }
     }

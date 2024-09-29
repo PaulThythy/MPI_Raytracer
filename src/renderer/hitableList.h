@@ -16,8 +16,6 @@ struct HitableList {
 
     HitableList() = default;
 
-    inline void add(std::shared_ptr<Hitable::HitableObject> object) { m_objects.push_back(object); }
-
     inline bool intersect(const Ray::Ray& ray, float& t_min, float& t_max, HitRecord& rec) {
         HitRecord temp_rec;
         bool hit_anything = false;

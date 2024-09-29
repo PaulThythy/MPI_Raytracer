@@ -33,8 +33,6 @@ struct Scene {
         1.0f                                                                                                            //focusDist
         ) { init(); }
 
-    inline void addLight(const Light& light) { m_lights.push_back(light); }
-
     void init();
 
     glm::vec3 rayColor(const Ray::Ray& ray, HitableList& world, const std::vector<Light>& lights, int bounces);
