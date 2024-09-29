@@ -3,10 +3,12 @@
 
 #include <glm/glm.hpp>
 
-namespace Hitable {
+namespace Ray {
     struct Ray {
         glm::vec3 m_origin;
         glm::vec3 m_direction;
+
+        Ray() {}
 
         inline Ray(const glm::vec3& _origin, const glm::vec3& _direction): m_origin(_origin) {
             m_direction = glm::normalize(_direction);
@@ -14,7 +16,7 @@ namespace Hitable {
 
         inline ~Ray() {}
 
-        inline glm::vec3 getPoint(double t) {
+        inline glm::vec3 at(float t) const {
             glm::vec3 point;
             point.x = this->m_origin.x + this->m_direction.x * t;
             point.y = this->m_origin.y + this->m_direction.y * t;

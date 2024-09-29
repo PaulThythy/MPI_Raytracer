@@ -11,6 +11,7 @@ public:
     FrameBuffer(int width, int height);
 
     void setPixel(int x, int y, const glm::vec3& color);
+    void accumulatePixel(int x, int y, const glm::vec3& color);
 
     glm::vec3 getPixel(int x, int y) const;
 

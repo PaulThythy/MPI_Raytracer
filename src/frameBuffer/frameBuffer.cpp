@@ -13,6 +13,12 @@ void FrameBuffer::setPixel(int x, int y, const glm::vec3& color) {
     m_pixels[y * m_width + x] = color;
 }
 
+void FrameBuffer::accumulatePixel(int x, int y, const glm::vec3& color) {
+    assert(x >= 0 && x < m_width);
+    assert(y >= 0 && y < m_height);
+    m_pixels[y * m_width + x] += color;
+}
+
 glm::vec3 FrameBuffer::getPixel(int x, int y) const {
     assert(x >= 0 && x < m_width);
     assert(y >= 0 && y < m_height);

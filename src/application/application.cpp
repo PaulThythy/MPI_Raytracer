@@ -3,8 +3,6 @@
 #include <memory>
 
 #include "application.h"
-#include "renderer/sphere.h"
-#include "renderer/triangle.h"
 
 Application::Application(int argc, char *argv[]) {
     m_isRunning = true;

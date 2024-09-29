@@ -3,14 +3,16 @@
 
 #include <glm/glm.hpp>
 
+#include "ray.h"
+#include "hitRecord.h"
+
 namespace Hitable {
     
     struct HitableObject {
-        glm::vec3 m_albedo;
-
         virtual ~HitableObject() = default;
-        virtual bool intersect(const Hitable::Ray& ray, float& t) const = 0;
+        virtual bool intersect(const Ray::Ray& ray, float& t_min, float& t_max, HitRecord& rec) const = 0;
 		virtual glm::vec3 getNormal(const glm::vec3& point) const = 0;
+        //TODO bounding boxes
     };
 }
 
