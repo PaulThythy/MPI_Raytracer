@@ -13,8 +13,8 @@ void Scene::init() {
     };
 
     m_lights = {
-        Lighting::DirectionalLight(glm::vec3(0.f, 0.f, -6.f), glm::vec3(255, 255, 255), 500.0, glm::vec3(0.0, 0.0, 0.0)),
-        Lighting::DirectionalLight(glm::vec3(0.f, 5.f, 0.f), glm::vec3(255, 255, 255), 100.0, glm::vec3(0.0, 0.0, 0.0))
+        Lighting::DirectionalLight(glm::vec3(0.f, -3.f, 5.f), glm::vec3(255, 255, 255), 100.0, glm::vec3(0.0, 0.0, 0.0))/*,
+        Lighting::DirectionalLight(glm::vec3(0.f, 5.f, 0.f), glm::vec3(255, 255, 255), 100.0, glm::vec3(0.0, 0.0, 0.0))*/
     };
 }
 

@@ -1,4 +1,5 @@
 #include "MPI_context.h"
+#include "globals/globals.h"
 
 MPI::MPI_context::MPI_context() {}
 
@@ -10,6 +11,8 @@ MPI::MPI_context::MPI_context(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
 
     MPI_Get_processor_name(hostname, &len);
+
+    Config::NB_WORKERS = getNumTasks() - 1;
 }
 
 void MPI::MPI_context::endMPI() {
