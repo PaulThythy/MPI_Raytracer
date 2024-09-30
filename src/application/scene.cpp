@@ -13,7 +13,8 @@ void Scene::init() {
     };
 
     m_lights = {
-        Lighting::DirectionalLight(glm::vec3(0.f, 0.f, -6.f), glm::vec3(255, 255, 255), 500.0, glm::vec3(0.0, 0.0, 0.0))
+        Lighting::DirectionalLight(glm::vec3(0.f, 0.f, -6.f), glm::vec3(255, 255, 255), 500.0, glm::vec3(0.0, 0.0, 0.0)),
+        Lighting::DirectionalLight(glm::vec3(0.f, 5.f, 0.f), glm::vec3(255, 255, 255), 100.0, glm::vec3(0.0, 0.0, 0.0))
     };
 }
 
@@ -22,31 +23,33 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 
     if (bounces <= 0)
         return glm::vec3(0.0f);
-        
+
     float t_min = 0.001f;
     float t_max = FLT_MAX;
 
     if (world.intersect(ray, t_min, t_max, rec)) {
         glm::vec3 color(0.0f);
 
-        // check if material is emissive
+        // heck if the material is emissive
         Emissive* emissive = dynamic_cast<Emissive*>(rec.m_material.get());
         if (emissive) {
             color += emissive->emitted();
         }
 
         // compute direct lighting
-        for (const auto& light : lights) {
-            glm::vec3 to_light = glm::normalize(light.m_position - rec.m_point);
-            Ray::Ray shadow_ray(rec.m_point, to_light);
-            HitRecord shadow_rec;
+        if (!lights.empty()) {
+            for (const auto& light : lights) {
+                glm::vec3 to_light = glm::normalize(light.m_position - rec.m_point);
+                Ray::Ray shadow_ray(rec.m_point, to_light);
+                HitRecord shadow_rec;
 
-            // check if the point is in the shadow
-            float length = glm::length(light.m_position - rec.m_point);
-            bool in_shadow = world.intersect(shadow_ray, t_min, length, shadow_rec);
-            if (!in_shadow) {
-                float ndotl = glm::max(glm::dot(rec.m_normal, to_light), 0.0f);
-                color += rec.m_material->getAlbedo() * light.m_color * light.m_intensity * ndotl;
+                // check if the point is in the shadow
+                float length = glm::length(light.m_position - rec.m_point);
+                bool in_shadow = world.intersect(shadow_ray, t_min, length, shadow_rec);
+                if (!in_shadow) {
+                    float ndotl = glm::max(glm::dot(rec.m_normal, to_light), 0.0f);
+                    color += rec.m_material->getAlbedo() * light.m_color * light.m_intensity * ndotl;
+                }
             }
         }
 
@@ -54,17 +57,23 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
         Ray::Ray scattered;
         glm::vec3 attenuation;
         if (rec.m_material->scatter(ray, rec, attenuation, scattered)) {
-            color += attenuation * rayColor(scattered, world, lights, bounces - 1);
+            if (!lights.empty() || emissive) {
+                color += attenuation * rayColor(scattered, world, lights, bounces - 1);
+            }
         }
 
         return color;
     }
 
-    // background color
+    // returns black if no intersection
+    //return glm::vec3(0.0f);
+
+    // or returns a gradient from white to blue
     glm::vec3 unit_direction = glm::normalize(ray.m_direction);
     float t = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 }
+
 
 
 void Scene::render(SDL::SDL_context* sdlCtx) {
