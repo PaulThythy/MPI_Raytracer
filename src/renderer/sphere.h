@@ -10,9 +10,9 @@ namespace Hitable {
     struct Sphere : public Hitable::HitableObject {
         glm::vec3 m_center;
         float m_radius;
-        std::shared_ptr<Material> m_material;
+        std::shared_ptr<PBR::Material> m_material;
 
-        inline Sphere(const glm::vec3& center, const float radius, const std::shared_ptr<Material>& mat): m_center(center), m_radius(radius), m_material(mat) {}
+        inline Sphere(const glm::vec3& center, const float radius, const std::shared_ptr<PBR::Material>& mat): m_center(center), m_radius(radius), m_material(mat) {}
 
         inline ~Sphere() {}
 

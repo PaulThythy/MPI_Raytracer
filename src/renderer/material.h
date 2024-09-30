@@ -2,110 +2,118 @@
 #define MATERIAL_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include "renderer/ray.h"
 #include "renderer/hitRecord.h"
 #include "random/random.h"
 
-struct Material {
-    virtual bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) const = 0;
+namespace PBR {
 
-    virtual glm::vec3 getAlbedo() const { return glm::vec3(0.0f); }
-};
+    struct Material {
+        glm::vec3 m_albedo;                             //base color
+        float m_metallic;                               //metallic (1.0) or dielectric (0.0)
+        float m_roughness;                              //affects surface microstructure, affecting the sharpness of specular reflections
+        float m_ambientOcclusion;                       //factor that indirectly reduces ambient light in hidden areas
+        float m_reflectance;                            //reflection factor for dielectrics
 
 
-struct Lambertian : public Material {
-    glm::vec3 m_albedo;
+        Material(
+            const glm::vec3& albedo = glm::vec3(1.0),
+            float metallic = 0.0f,
+            float roughness = 0.5,
+            float ambientOcclusion = 1.0f,
+            float reflectance = 0.04f                   //default value for dielectrics
+        ) : m_albedo(albedo),
+            m_metallic(metallic),
+            m_roughness(roughness),
+            m_ambientOcclusion(ambientOcclusion),
+            m_reflectance(reflectance) {}
+        
+        virtual ~Material() = default;
 
-    Lambertian(const glm::vec3& albedo) : m_albedo(albedo) {}
-    ~Lambertian() {}
+        virtual inline bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) {
+            //view vector
+            glm::vec3 V = -glm::normalize(rayIn.m_direction);
 
-    inline bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) const override {
-        glm::vec3 scatter_direction = Random::randomInHemisphere(rec.m_normal);
-        scattered = Ray::Ray(rec.m_point, scatter_direction);
-        attenuation = m_albedo;
-        return true;
-    }
+            //normal vector of the surface
+            glm::vec3 N = rec.m_normal;
 
-    inline glm::vec3 getAlbedo() const override {
-        return m_albedo;
-    }
-};
+            //generate a random vector in the hemisphere of the hit point for diffuse reflection
+            //TODO test with randomInHemisphere function
+            glm::vec3 L = glm::normalize(N + Random::randomInUnitSphere());
 
-struct Metal : public Material {
-    glm::vec3 m_albedo;
-    float m_fuzz;
+            glm::vec3 H = glm::normalize(V + L);
 
-    Metal(const glm::vec3& a, float f) : m_albedo(a), m_fuzz(f < 1 ? f : 1) {}
-    ~Metal() {}
+            //coefficients
+            float NdotL = std::max(glm::dot(N, L), 0.0f);
+            float NdotV = std::max(glm::dot(N, V), 0.0f);
+            //float NdotH = std::max(glm::dot(N, H), 0.0f);
+            float VdotH = std::max(glm::dot(V, H), 0.0f);
 
-    inline bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) const override {
-        glm::vec3 reflected = glm::reflect(glm::normalize(rayIn.m_direction), rec.m_normal);
-        scattered = Ray::Ray(rec.m_point, reflected + m_fuzz * Random::randomInUnitSphere());
-        attenuation = m_albedo;
-        return (glm::dot(scattered.m_direction, rec.m_normal) > 0);
-    }
+            float D = distributionGGX(N, H, m_roughness);
+            float G = geometrySmith(N, V, L, m_roughness);
+            glm::vec3 F0 = glm::mix(glm::vec3(m_reflectance), m_albedo, m_metallic);
+            glm::vec3 F = fresnelSchlick(VdotH, F0);
 
-    inline glm::vec3 getAlbedo() const override {
-        return m_albedo;
-    }
-};
+            // BRDF
+            glm::vec3 nominator = D * G * F;
+            float denominator = 4.0f * NdotV * NdotL + 0.0001f;
+            glm::vec3 specular = nominator / denominator;
 
-struct Dielectric : public Material {
-    float m_refIdx;
+            //Lambertian (diffuse component)
+            glm::vec3 kD = (1.0f - F) * (1.0f - m_metallic);
+            glm::vec3 diffuse = (kD * m_albedo) / glm::pi<float>();
 
-    Dielectric(float ri) : m_refIdx(ri) {}
-    ~Dielectric() {}
+            //reflected energy
+            glm::vec3 radiance = (diffuse + specular) * NdotL;
 
-    inline bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) const override {
-        attenuation = glm::vec3(1.0f, 1.0f, 1.0f);
-        float etai_over_etat = rec.m_isFrontFace ? (1.0f / m_refIdx) : m_refIdx;
+            //attenuation
+            attenuation = radiance * m_ambientOcclusion;
 
-        glm::vec3 unit_direction = glm::normalize(rayIn.m_direction);
-        float cos_theta = fmin(glm::dot(-unit_direction, rec.m_normal), 1.0f);
-        float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+            //scattered ray
+            scattered = Ray::Ray(rec.m_point, L);
 
-        if (etai_over_etat * sin_theta > 1.0f) {
-            glm::vec3 reflected = glm::reflect(unit_direction, rec.m_normal);
-            scattered = Ray::Ray(rec.m_point, reflected);
             return true;
+        } 
+
+        virtual glm::vec3 emitted() const {
+            return glm::vec3(0.0f);
         }
 
-        float reflect_prob = schlick(cos_theta, etai_over_etat);
-        if (Random::randomFloat(0.0f, 1.0f) < reflect_prob) {
-            glm::vec3 reflected = glm::reflect(unit_direction, rec.m_normal);
-            scattered = Ray::Ray(rec.m_point, reflected);
-        } else {
-            glm::vec3 refracted = glm::refract(unit_direction, rec.m_normal, etai_over_etat);
-            scattered = Ray::Ray(rec.m_point, refracted);
+        inline float distributionGGX(const glm::vec3& N, const glm::vec3& H, float roughness) {
+            float a = roughness * roughness;
+            float a2 = a * a;
+            float NdotH = std::max(glm::dot(N, H), 0.0f);
+            float NdotH2 = NdotH * NdotH;
+
+            float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
+            denom = glm::pi<float>() * denom * denom;
+
+            return a2 / denom;
         }
 
-        return true;
-    }
+        inline float geometrySchlickGGX(float NdotV, float roughness) {
+            float r = (roughness + 1.0f);
+            float k = (r * r) / 8.0f;
 
-    inline float schlick(float cosine, float ref_idx) const {
-        float r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
-        r0 = r0 * r0;
-        return r0 + (1.0f - r0) * pow((1.0f - cosine), 5.0f);
-    }
-};
+            float denom = NdotV * (1.0f - k) + k;
+            return NdotV / denom;
+        }
 
-struct Emissive : public Material {
-    glm::vec3 m_emitColor;
+        inline float geometrySmith(const glm::vec3& N, const glm::vec3& V, const glm::vec3& L, float roughness) {
+            float NdotV = std::max(glm::dot(N, V), 0.0f);
+            float NdotL = std::max(glm::dot(N, L), 0.0f);
+            float ggx2 = geometrySchlickGGX(NdotV, roughness);
+            float ggx1 = geometrySchlickGGX(NdotL, roughness);
 
-    Emissive(const glm::vec3& color) : m_emitColor(color) {}
+            return ggx1 * ggx2;
+        }
 
-    inline bool scatter(const Ray::Ray& rayIn, const HitRecord& rec, glm::vec3& attenuation, Ray::Ray& scattered) const override {
-        return false;
-    }
-
-    glm::vec3 emitted() const {
-        return m_emitColor;
-    }
-
-    inline glm::vec3 getAlbedo() const override {
-        return glm::vec3(0.0f);
-    }
-};
+        inline glm::vec3 fresnelSchlick(float cosTheta, const glm::vec3& F0) {
+            return F0 + (1.0f - F0) * glm::pow(1.0f - cosTheta, 5.0f);
+        }           
+    };
+}
 
 #endif

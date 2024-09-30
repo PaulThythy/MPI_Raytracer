@@ -3,43 +3,47 @@
 
 #include <glm/glm.hpp>
 
-struct Light {
-    glm::vec3 m_position;
-    glm::vec3 m_color;
-    float m_intensity;
-    
-    virtual ~Light() = default;
-};
-
 namespace Lighting {
-    struct DirectionalLight : public Light {
-        glm::vec3 m_direction; 
+    enum struct LightType : char {
+		DIRECTIONAL
+	};
 
-        DirectionalLight(const glm::vec3& pos, const glm::vec3& color, const float intens, const glm::vec3& dir)
-            : m_direction(dir) {
-                
-            m_position = pos; m_color = color; m_intensity = intens;
+    struct Light {
+        glm::vec3 m_position;
+        glm::vec3 m_color;     
+        float m_intensity;     
+        LightType m_type;
+
+        Light(const glm::vec3& position, const glm::vec3& color, float intensity, LightType type)
+            : m_position(position), m_color(color), m_intensity(intensity), m_type(type) {}
+
+        virtual ~Light() = default;
+
+        virtual glm::vec3 getDirection(const glm::vec3& point, float& distance) const = 0;
+
+        virtual float getAttenuation(float distance) const = 0;
+
+        virtual glm::vec3 getEmission() const {
+            return glm::vec3(0.0f); //By default, no emission
+        }
+    };
+
+    struct DirectionalLight : public Light {
+        glm::vec3 m_direction; // must be normalized
+
+        DirectionalLight(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& color, float intensity)
+            : Light(position, color, intensity, LightType::DIRECTIONAL), m_direction(glm::normalize(direction)) {}
+
+        inline glm::vec3 getDirection(const glm::vec3& point, float& distance) const override {
+            distance = FLT_MAX;
+            return m_direction;
+        }
+
+        inline float getAttenuation(float distance) const override {
+            return 1.0f; 
         }
     };
 }
-
-
-/*struct PointLight : public Light {
-    glm::vec3 m_position;
-    glm::vec3 m_intensity;
-
-    PointLight(const glm::vec3& pos, const glm::vec3& inten)
-        : m_position(pos), m_intensity(inten) {}
-
-    virtual glm::vec3 getLightDirection(const glm::vec3& point) const override {
-        return glm::normalize(m_position - point);
-    }
-
-    virtual glm::vec3 getIntensity(const glm::vec3& point) const override {
-        float distanceSquared = glm::distance(m_position, point);
-        return m_intensity / (distanceSquared); 
-    }
-};*/
 
 //TODO other types of lights : Point, Area, Spot, Background
 

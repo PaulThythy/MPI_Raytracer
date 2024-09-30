@@ -9,9 +9,9 @@ namespace Hitable {
 
     struct Triangle : public Hitable::HitableObject {
         glm::vec3 m_v0, m_v1, m_v2;
-        std::shared_ptr<Material> m_material;
+        std::shared_ptr<PBR::Material> m_material;
 
-        inline Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const std::shared_ptr<Material>& mat)
+        inline Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const std::shared_ptr<PBR::Material>& mat)
             : m_v0(v0), m_v1(v1), m_v2(v2), m_material(mat) {}
 
         inline ~Triangle() {}

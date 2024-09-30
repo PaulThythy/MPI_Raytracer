@@ -6,14 +6,16 @@
 
 #include "ray.h"
 
-struct Material;
+namespace PBR {
+    struct Material;
+}
 
 struct HitRecord {
     glm::vec3 m_point;
     glm::vec3 m_normal;
     float t;
     bool m_isFrontFace;
-    std::shared_ptr<Material> m_material;
+    std::shared_ptr<PBR::Material> m_material;
     //isEmissive
 
     inline void setFaceNormal(const Ray::Ray& ray, const glm::vec3& outwardNormal) {
