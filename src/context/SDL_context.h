@@ -1,7 +1,12 @@
 #ifndef SDL_CONTEXT_H
 #define SDL_CONTEXT_H
 
-#include <SDL2/SDL.h>
+#ifdef _WIN32
+	#include <SDL.h>
+#elif __linux__
+	#include <SDL2/SDL.h>
+#endif
+
 #include "globals/globals.h"
 
 namespace SDL {

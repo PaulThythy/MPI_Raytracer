@@ -1,7 +1,11 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-#include <glm/glm.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+#endif
 #include <random>
 
 namespace Random {

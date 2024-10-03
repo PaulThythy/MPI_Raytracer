@@ -1,7 +1,11 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include <glm/glm.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+#endif
 
 namespace Ray {
     struct Ray {

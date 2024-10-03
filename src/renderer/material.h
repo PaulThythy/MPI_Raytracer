@@ -1,8 +1,13 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+    #include <gtc/constants.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+    #include <glm/gtc/constants.hpp>
+#endif
 
 #include "renderer/ray.h"
 #include "renderer/hitRecord.h"

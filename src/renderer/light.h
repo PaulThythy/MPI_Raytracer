@@ -1,7 +1,11 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <glm/glm.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+#endif
 
 namespace Lighting {
     enum struct LightType : char {

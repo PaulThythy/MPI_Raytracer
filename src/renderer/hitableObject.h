@@ -1,7 +1,11 @@
 #ifndef HITABLEOBJECT_H
 #define HITABLEOBJECT_H
 
-#include <glm/glm.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+#endif
 
 #include "ray.h"
 #include "hitRecord.h"

@@ -1,7 +1,11 @@
 #ifndef HITRECORD_H
 #define HITRECORD_H
 
-#include <glm/glm.hpp>
+#ifdef _WIN32
+	#include <glm.hpp>
+#elif __linux__
+	#include <glm/glm.hpp>
+#endif
 #include <memory>
 
 #include "ray.h"
