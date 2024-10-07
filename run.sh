@@ -14,7 +14,14 @@ cmake --build build/$build_type --target MPI_Raytracer
 if [ $? -eq 0 ]; then
 	echo "Compilation successful. Running the program..."
 	
-	mpirun --oversubscribe --report-bindings -np ${NB_PROCESS} ./build/*/MPI_Raytracer
+	if [ "$OS" = "Linux" ]; then
+        mpirun --oversubscribe --report-bindings -np ${NB_PROCESS} ./build/*/MPI_Raytracer
+    elif [[ "$OS" == *"MINGW"* || "$OS" == *"CYGWIN"* || "$OS" == *"MSYS"* || "$OS" == *"MINGW32"* ]]; then
+        mpiexec --oversubscribe --report-bindings -n ${NB_PROCESS} ./build/*/MPI_Raytracer
+    else
+        echo "Unsupported OS: $OS"
+        exit 1
+    fi
 else
 	echo "Compilation failed. Please check the error messages."
 fi
