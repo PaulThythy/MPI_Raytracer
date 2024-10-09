@@ -8,12 +8,11 @@ Application::Application(int argc, char *argv[]) {
     m_isRunning = true;
 
     m_mpiCtx = new MPI::MPI_context(argc, argv);
+    m_sdlCtx = new SDL::SDL_context();
 
     m_scene = std::make_unique<Scene>();
 
     if(m_mpiCtx->getRank() == 0) {
-        m_sdlCtx = new SDL::SDL_context();
-
         if (m_sdlCtx->initSDL()) {
             execute();
         } else {
