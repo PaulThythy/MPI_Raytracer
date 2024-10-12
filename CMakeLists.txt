@@ -5,10 +5,11 @@ project(MPI_Raytracer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wfatal-errors -Werror -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
+file(GLOB_RECURSE RAYTRACER_SOURCES "src/*")
 file(GLOB_RECURSE RAYTRACER_SOURCES "src/*")
 
 if(WIN32)
@@ -22,14 +23,12 @@ if(WIN32)
     set(SDL2_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/SDL")
     add_subdirectory(${SDL2_SOURCE_DIR})
 
-    include_directories(${SDL2_SOURCE_DIR}/include)
-
     add_subdirectory(${PROJECT_SOURCE_DIR}/libs/glm/glm)
     include_directories(${PROJECT_SOURCE_DIR}/libs/glm/glm)
 
     add_executable(MPI_Raytracer ${RAYTRACER_SOURCES})
 
-    target_link_libraries(MPI_Raytracer PRIVATE ${SDL2_LIBRARIES} msmpi glm::glm)
+    target_link_libraries(MPI_Raytracer PRIVATE SDL2::SDL2 SDL2::SDL2main msmpi glm::glm)
 else()
     find_package(MPI REQUIRED)
 
