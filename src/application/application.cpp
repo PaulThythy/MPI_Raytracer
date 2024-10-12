@@ -18,6 +18,8 @@ Application::Application(int argc, char *argv[]) {
         } else {
             m_isRunning = false;
         }
+    } else {
+        m_scene->render(m_mpiCtx, m_sdlCtx);
     }
 }
 
@@ -34,8 +36,6 @@ Application::~Application() {
 }
 
 void Application::execute() {
-    m_scene->render(m_sdlCtx);
-
     SDL_Event event;
     while(m_isRunning) {
         while (SDL_PollEvent(&event)) {

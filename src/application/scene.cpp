@@ -48,7 +48,7 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 }
 
 void Scene::render(SDL::SDL_context* sdlCtx) {
-    int image_width = Config::WINDOW_WIDTH;
+    /*int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
     FrameBuffer fb(image_width, image_height);
@@ -77,5 +77,16 @@ void Scene::render(SDL::SDL_context* sdlCtx) {
         sdlCtx->updateScreen();
     }
 
-    fb.saveAsPPM("image.ppm");
+    fb.saveAsPPM("image.ppm");*/
+
+    int num_processes = mpiCtx->getNumTasks();
+    int rank = mpiCtx->getRank();
+
+    int samples_per_process = Config::SAMPLES / num_processes;
+    int remainder_samples = Config::SAMPLES % num_processes;
+
+    int start_sample = rank * samples_per_process + std::min(rank, remainder_samples);
+    int end_sample = start_sample + samples_per_process + (rank < remainder_samples ? 1 : 0);
+
+    std::cout << "rank : " << rank << ", start_sample : " << start_sample << ", end_sample : " << end_sample << std::endl;
 }
