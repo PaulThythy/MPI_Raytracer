@@ -5,6 +5,8 @@
 
 namespace Config {
 
+    inline const double PI = 3.1415926535897932384626433832795028841971693993751058209;
+
     //TODO maybe make it a uint32 ?
     inline const int WINDOW_WIDTH = 1500;
     inline const int WINDOW_HEIGHT = 1200;
@@ -16,7 +18,7 @@ namespace Config {
 
     inline int NB_WORKERS;
 
-    namespace MPI_Data {
+    /*namespace MPI_Data {
 
         struct PixelData {
             int x, y;
@@ -36,7 +38,7 @@ namespace Config {
         //maybe I can keep only MPI_Datatypes in public and the rest in the function ?
 
         inline void INIT_MPI_DATA_STRUCTS() {
-            /* for pixel datas */
+            //for pixel datas
             offsets[0] = offsetof(PixelData, x);
             offsets[1] = offsetof(PixelData, y);
             offsets[2] = offsetof(PixelData, r);
@@ -46,7 +48,7 @@ namespace Config {
             MPI_Type_commit(&mpi_pixelData_type);
         }
 
-    }
+    }*/
 
 }
 

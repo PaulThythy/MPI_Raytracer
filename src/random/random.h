@@ -6,7 +6,10 @@
 #elif __linux__
 	#include <glm/glm.hpp>
 #endif
+
 #include <random>
+
+#include "globals/globals.h"
 
 namespace Random {
     inline double randomFloat(float min, float max) {
@@ -40,7 +43,7 @@ namespace Random {
     }
 
     inline glm::vec3 randomUnitVector() {
-        float a = randomFloat(0.0f, 2.0f * M_PI);
+        float a = randomFloat(0.0f, 2.0f * Config::PI);
         float z = randomFloat(-1.0f, 1.0f);
         float r = sqrt(1.0f - z * z);
         return glm::vec3(r * glm::cos(a), r * glm::sin(a), z);
