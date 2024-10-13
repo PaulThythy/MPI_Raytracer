@@ -48,27 +48,57 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 }
 
 void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
-    /*int image_width = Config::WINDOW_WIDTH;
+    int rank = mpiCtx->getRank();
+
+    int samples_per_process = Config::SAMPLES / Config::NB_WORKERS;
+    int remainder_samples = Config::SAMPLES % Config::NB_WORKERS;
+
+    int start_sample = 1;
+    int end_sample = samples_per_process + (rank == Config::NB_WORKERS ? remainder_samples : 0);
+
+    int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
-    FrameBuffer fb(image_width, image_height);
+    std::vector<float> local_buffer(image_width * image_height * 3, 0.0f);
 
-    for (int s = 0; s < Config::SAMPLES; ++s) {
+    if(rank != 0) {
+        for (int s = start_sample; s <= end_sample; ++s) {
+            for (int j = 0; j < image_height; ++j) {
+                for (int i = 0; i < image_width; ++i) {
+                    float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
+                    float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);
+                    Ray::Ray ray = m_camera.getRay(u, v);
+
+                    glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
+
+                    int idx = (j * image_width + i) * 3;
+
+                    local_buffer[idx]     += sampleColor.r;
+                    local_buffer[idx + 1] += sampleColor.g;
+                    local_buffer[idx + 2] += sampleColor.b;
+                }
+            }
+        }
+    }
+
+    std::vector<float> global_buffer;
+    if (rank == 0) {
+        global_buffer.resize(local_buffer.size(), 0.0f);
+    }
+
+    MPI_Reduce(local_buffer.data(), global_buffer.data(), local_buffer.size(), MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (rank == 0) {
         for (int j = 0; j < image_height; ++j) {
             for (int i = 0; i < image_width; ++i) {
-                float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
-                float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);
-                Ray::Ray ray = m_camera.getRay(u, v);
+                int idx = (j * image_width + i) * 3;
+                float r = global_buffer[idx] / Config::SAMPLES;
+                float g = global_buffer[idx + 1] / Config::SAMPLES;
+                float b = global_buffer[idx + 2] / Config::SAMPLES;
 
-                glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
-
-                fb.accumulatePixel(i, j, sampleColor);
-
-                glm::vec3 avgColor = fb.getPixel(i, j) / static_cast<float>(s + 1);
-
-                int ir = static_cast<int>(glm::clamp(avgColor.r * 255.0f, 0.0f, 255.0f));
-                int ig = static_cast<int>(glm::clamp(avgColor.g * 255.0f, 0.0f, 255.0f));
-                int ib = static_cast<int>(glm::clamp(avgColor.b * 255.0f, 0.0f, 255.0f));
+                int ir = static_cast<int>(glm::clamp(r * 255.0f, 0.0f, 255.0f));
+                int ig = static_cast<int>(glm::clamp(g * 255.0f, 0.0f, 255.0f));
+                int ib = static_cast<int>(glm::clamp(b * 255.0f, 0.0f, 255.0f));
 
                 sdlCtx->setPixel(i, j, ir, ig, ib);
             }
@@ -76,17 +106,4 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
 
         sdlCtx->updateScreen();
     }
-
-    fb.saveAsPPM("image.ppm");*/
-
-    int num_processes = mpiCtx->getNumTasks();
-    int rank = mpiCtx->getRank();
-
-    int samples_per_process = Config::SAMPLES / num_processes;
-    int remainder_samples = Config::SAMPLES % num_processes;
-
-    int start_sample = rank * samples_per_process + std::min(rank, remainder_samples);
-    int end_sample = start_sample + samples_per_process + (rank < remainder_samples ? 1 : 0);
-
-    std::cout << "rank : " << rank << ", start_sample : " << start_sample << ", end_sample : " << end_sample << std::endl;
 }
