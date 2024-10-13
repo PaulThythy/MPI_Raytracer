@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "MPI_context.h"
 #include "globals/globals.h"
 
@@ -11,6 +13,12 @@ MPI::MPI_context::MPI_context(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
 
     MPI_Get_processor_name(hostname, &len);
+
+    if (num_tasks < 2) {
+        // Finaliser MPI avant de lancer l'exception
+        MPI_Finalize();
+        throw std::runtime_error("The program needs at least 2 MPI processes.");
+    }
 
     Config::NB_WORKERS = getNumTasks() - 1;
 }
