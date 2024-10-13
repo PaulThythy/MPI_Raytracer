@@ -47,7 +47,7 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 }
 
-void Scene::render(SDL::SDL_context* sdlCtx) {
+void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     /*int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
