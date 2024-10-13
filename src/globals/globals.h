@@ -8,13 +8,16 @@ namespace Config {
     inline const double PI = 3.1415926535897932384626433832795028841971693993751058209;
 
     //TODO maybe make it a uint32 ?
-    inline const int WINDOW_WIDTH = 1500;
-    inline const int WINDOW_HEIGHT = 1200;
+    inline const int WINDOW_WIDTH = 1200;
+    inline const int WINDOW_HEIGHT = 900;
 
     // number of rays per pixel
-    inline const int SAMPLES = 10;
+    inline const int SAMPLES = 100;
 
     inline const int BOUNCES = 10;
+
+    //TODO use chunks for rendering
+    inline const int BATCH_SIZE = 1;
 
     inline int NB_WORKERS;
 

@@ -27,7 +27,7 @@ struct Scene {
     inline Scene() : m_camera(
         glm::vec3(10.0f, 2.0f, 3.0f),                                                                                   //lookFrom
         glm::vec3(0.0f, 0.0f, 0.0f),                                                                                    //lookAt
-        glm::vec3(0.0f, -1.0f, 0.0f),                                                                                   //up
+        glm::vec3(0.0f, -1.0f, 0.0f),                                                                                    //up
         90.0f,                                                                                                          //fov                    
         static_cast<float>(Config::WINDOW_WIDTH) / static_cast<float>(Config::WINDOW_HEIGHT),                           //aspectRatio
         0.0f,                                                                                                           //aperture                 
