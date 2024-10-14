@@ -72,6 +72,8 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
         global_sum_buffer.resize(local_sum_buffer.size(), 0.0f);
     }
 
+    FrameBuffer fb(image_width, image_height);
+
     for(int s = 0 ; s < num_samples ; s++) {
         std::vector<float> local_sample_buffer(image_width * image_height * 3, 0.0f);
 
@@ -115,10 +117,17 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
                     int ib = static_cast<int>(glm::clamp(b * 255.99f, 0.0f, 255.99f));
 
                     sdlCtx->setPixel(i, j, ir, ig, ib);
+                    fb.setPixel(i, j, glm::vec3(r, g, b));
                 }
             }
 
             sdlCtx->updateScreen();
+            std::cout << "end of iteration" << std::endl;
         }
+    }
+
+    if(rank == 0) {
+        std::cout << "render finished" << std::endl;
+        fb.saveAsPPM("image.ppm");
     }
 }

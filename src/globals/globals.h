@@ -12,9 +12,9 @@ namespace Config {
     inline const int WINDOW_HEIGHT = 900;
 
     // number of rays per pixel
-    inline const int SAMPLES = 1000;
+    inline const int SAMPLES = 10;
 
-    inline const int BOUNCES = 10;
+    inline const int BOUNCES = 2;
 
     //TODO use chunks for rendering
     inline const int BATCH_SIZE = 1;
