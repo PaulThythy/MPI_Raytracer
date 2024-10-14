@@ -15,7 +15,7 @@ MPI::MPI_context::MPI_context(int argc, char *argv[]) {
     MPI_Get_processor_name(hostname, &len);
 
     if (num_tasks < 2) {
-        // Finaliser MPI avant de lancer l'exception
+        //at least 2 processes needed
         MPI_Finalize();
         throw std::runtime_error("The program needs at least 2 MPI processes.");
     }

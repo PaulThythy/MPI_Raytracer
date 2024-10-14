@@ -1,12 +1,12 @@
 #include "scene.h"
 
 void Scene::init() {
-    auto matSphere1 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 0.0f), 0.0f, 0.5f, 1.0f);
-    auto matSphere2 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 0.0f, 1.0f), 1.0f, 0.1f, 1.0f);
-    auto matSphere3 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.8f, 1.0f);
-    auto matSphere4 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 1.0f, 0.0f), 0.0f, 0.8f, 1.0f);
-    auto matSphere5 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 1.0f), 0.0f, 0.8f, 1.0f);
-    auto matSphere6 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 1.0f), 0.0f, 0.8f, 1.0f);
+    auto matSphere1 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 0.0f));
+    auto matSphere2 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 0.0f, 1.0f));
+    auto matSphere3 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 0.0f));
+    auto matSphere4 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 1.0f, 0.0f));
+    auto matSphere5 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 1.0f));
+    auto matSphere6 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 1.0f));
 
     m_world.m_objects = {
         std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, -50.0f, 0.0f), 50.f, matSphere1),
@@ -53,117 +53,28 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 }
 
 void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
-    /*int rank = mpiCtx->getRank();
-    int num_processes = mpiCtx->getNumTasks();
-    int num_workers = Config::NB_WORKERS; // Le processus de rang 0 est le ma�tre
+    int rank = mpiCtx->getRank();
+    int image_width = Config::WINDOW_WIDTH;
+    int image_height = Config::WINDOW_HEIGHT;
+
+    int num_workers = Config::NB_WORKERS;
 
     int samples_per_worker = Config::SAMPLES / num_workers;
     int remainder_samples = Config::SAMPLES % num_workers;
 
-    int assigned_samples = 0;
-    if (rank != 0) {
-        assigned_samples = samples_per_worker + ((rank <= remainder_samples) ? 1 : 0);
-    }
+    int num_samples = samples_per_worker + (rank < remainder_samples ? 1 : 0);
 
-    int max_assigned_samples = samples_per_worker + ((remainder_samples > 0) ? 1 : 0);
+    int total_samples = 0;
 
-    int image_width = Config::WINDOW_WIDTH;
-    int image_height = Config::WINDOW_HEIGHT;
-
-    std::vector<float> local_buffer(image_width * image_height * 3, 0.0f);
-    std::vector<float> global_buffer;
+    std::vector<float> local_sum_buffer(image_width * image_height * 3, 0.0f);
+    std::vector<float> global_sum_buffer;
     if (rank == 0) {
-        global_buffer.resize(local_buffer.size(), 0.0f);
+        global_sum_buffer.resize(local_sum_buffer.size(), 0.0f);
     }
 
-    int total_samples_so_far = 0;
+    for(int s = 0 ; s < num_samples ; s++) {
+        std::vector<float> local_sample_buffer(image_width * image_height * 3, 0.0f);
 
-    for (int s = 1; s <= max_assigned_samples; ++s) {
-        // R�initialiser local_buffer
-        std::fill(local_buffer.begin(), local_buffer.end(), 0.0f);
-
-        // D�terminer si le processus contribue cette it�ration
-        bool worker_has_sample = false;
-        if (rank != 0 && s <= assigned_samples) {
-            worker_has_sample = true;
-
-            // Calcul des �chantillons
-            for (int j = 0; j < image_height; ++j) {
-                for (int i = 0; i < image_width; ++i) {
-                    float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
-                    float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);
-                    Ray::Ray ray = m_camera.getRay(u, v);
-
-                    glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
-
-                    int idx = (j * image_width + i) * 3;
-
-                    local_buffer[idx] += sampleColor.r;
-                    local_buffer[idx + 1] += sampleColor.g;
-                    local_buffer[idx + 2] += sampleColor.b;
-                }
-            }
-        }
-
-        // Tous les processus appellent MPI_Reduce
-        if (rank == 0) {
-            MPI_Reduce(MPI_IN_PLACE, local_buffer.data(), local_buffer.size(), MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
-        }
-        else {
-            MPI_Reduce(local_buffer.data(), nullptr, local_buffer.size(), MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
-        }
-
-        if (rank == 0) {
-            // Accumuler les nouvelles donn�es dans global_buffer
-            for (size_t idx = 0; idx < global_buffer.size(); ++idx) {
-                global_buffer[idx] += local_buffer[idx];
-            }
-
-            // Calculer le nombre d'�chantillons contribu� cette it�ration
-            int samples_contributed_this_iteration = 0;
-            if (s <= samples_per_worker) {
-                samples_contributed_this_iteration = num_workers;
-            }
-            else if (s == samples_per_worker + 1 && remainder_samples > 0) {
-                samples_contributed_this_iteration = remainder_samples;
-            }
-            else {
-                samples_contributed_this_iteration = 0;
-            }
-
-            total_samples_so_far += samples_contributed_this_iteration;
-
-            if (samples_contributed_this_iteration > 0) {
-                for (int j = 0; j < image_height; ++j) {
-                    for (int i = 0; i < image_width; ++i) {
-                        int idx = (j * image_width + i) * 3;
-                        float r = global_buffer[idx] / total_samples_so_far;
-                        float g = global_buffer[idx + 1] / total_samples_so_far;
-                        float b = global_buffer[idx + 2] / total_samples_so_far;
-
-                        int ir = static_cast<int>(glm::clamp(r * 255.0f, 0.0f, 255.0f));
-                        int ig = static_cast<int>(glm::clamp(g * 255.0f, 0.0f, 255.0f));
-                        int ib = static_cast<int>(glm::clamp(b * 255.0f, 0.0f, 255.0f));
-
-                        sdlCtx->setPixel(i, j, ir, ig, ib);
-                    }
-                }
-
-                sdlCtx->updateScreen();
-            }
-        }
-    }
-
-    if (rank == 0) {
-        std::cout << "Rendering finished" << std::endl;
-    }*/
-
-    int image_width = Config::WINDOW_WIDTH;
-    int image_height = Config::WINDOW_HEIGHT;
-
-    FrameBuffer fb(image_width, image_height);
-
-    for (int s = 0; s < Config::SAMPLES; ++s) {
         for (int j = 0; j < image_height; ++j) {
             for (int i = 0; i < image_width; ++i) {
                 float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
@@ -172,20 +83,42 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
 
                 glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
 
-                fb.accumulatePixel(i, j, sampleColor);
-
-                glm::vec3 avgColor = fb.getPixel(i, j) / static_cast<float>(s + 1);
-
-                int ir = static_cast<int>(glm::clamp(avgColor.r * 255.0f, 0.0f, 255.0f));
-                int ig = static_cast<int>(glm::clamp(avgColor.g * 255.0f, 0.0f, 255.0f));
-                int ib = static_cast<int>(glm::clamp(avgColor.b * 255.0f, 0.0f, 255.0f));
-
-                sdlCtx->setPixel(i, j, ir, ig, ib);
+                int idx = (j * image_width + i) * 3;
+                local_sample_buffer[idx]     += sampleColor.r;
+                local_sample_buffer[idx + 1] += sampleColor.g;
+                local_sample_buffer[idx + 2] += sampleColor.b;
             }
         }
 
-        sdlCtx->updateScreen();
-    }
+        std::vector<float> global_sample_buffer;
+        if(rank == 0) {
+            global_sample_buffer.resize(local_sample_buffer.size(), 0.0f);
+        }
+        MPI_Reduce(local_sample_buffer.data(), global_sample_buffer.data(), local_sample_buffer.size(), MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    fb.saveAsPPM("image.ppm");
+        if(rank == 0) {
+            for(size_t idx = 0; idx < global_sample_buffer.size(); ++idx) {
+                global_sum_buffer[idx] += global_sample_buffer[idx];
+            }
+
+            total_samples += num_workers;
+
+            for (int j = 0; j < image_height; ++j) {
+                for (int i = 0; i < image_width; ++i) {
+                    int idx = (j * image_width + i) * 3;
+                    float r = global_sum_buffer[idx] / total_samples;
+                    float g = global_sum_buffer[idx + 1] / total_samples;
+                    float b = global_sum_buffer[idx + 2] / total_samples;
+
+                    int ir = static_cast<int>(glm::clamp(r * 255.99f, 0.0f, 255.99f));
+                    int ig = static_cast<int>(glm::clamp(g * 255.99f, 0.0f, 255.99f));
+                    int ib = static_cast<int>(glm::clamp(b * 255.99f, 0.0f, 255.99f));
+
+                    sdlCtx->setPixel(i, j, ir, ig, ib);
+                }
+            }
+
+            sdlCtx->updateScreen();
+        }
+    }
 }
