@@ -66,6 +66,8 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
 
     int total_samples = 0;
 
+    std::cout << "rank : " << rank << ", samples per worker : " << samples_per_worker << ", remainder_samples : " << remainder_samples << ", num_samples : " << num_samples << ", samples : " << Config::SAMPLES << std::endl;
+
     std::vector<float> local_sum_buffer(image_width * image_height * 3, 0.0f);
     std::vector<float> global_sum_buffer;
     if (rank == 0) {
