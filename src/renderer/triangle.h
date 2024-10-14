@@ -17,8 +17,40 @@ namespace Hitable {
         inline ~Triangle() {}
 
         inline bool intersect(const Ray::Ray& ray, float& t_min, float& t_max, HitRecord& rec) const override {
-            //TODO remake intersection test
-            return true;
+            const float EPSILON = 1e-8f;
+            glm::vec3 edge1 = m_v1 - m_v0;
+            glm::vec3 edge2 = m_v2 - m_v0;
+
+            glm::vec3 h = glm::cross(ray.m_direction, edge2);
+            float a = glm::dot(edge1, h);
+
+            if (fabs(a) < EPSILON)
+                return false; // Le rayon est parallèle au triangle
+
+            float f = 1.0f / a;
+            glm::vec3 s = ray.m_origin - m_v0;
+            float u = f * glm::dot(s, h);
+
+            if (u < 0.0f || u > 1.0f)
+                return false; // Le point est en dehors du triangle
+
+            glm::vec3 q = glm::cross(s, edge1);
+            float v = f * glm::dot(ray.m_direction, q);
+
+            if (v < 0.0f || u + v > 1.0f)
+                return false; // Le point est en dehors du triangle
+
+            float t = f * glm::dot(edge2, q);
+
+            if (t >= t_min && t <= t_max) {
+                rec.m_t = t;
+                rec.m_p = ray.at(t);
+                rec.m_normal = getNormal(rec.m_p);
+                rec.m_material = m_material;
+                return true;
+            } else {
+                return false; // L'intersection est en dehors des limites [t_min, t_max]
+            }
         }
 
         inline glm::vec3 getNormal(const glm::vec3& point) const override {

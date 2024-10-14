@@ -4,11 +4,17 @@ void Scene::init() {
     auto matSphere1 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 0.0f), 0.0f, 0.5f, 1.0f);
     auto matSphere2 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 0.0f, 1.0f), 1.0f, 0.1f, 1.0f);
     auto matSphere3 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.8f, 1.0f);
+    auto matSphere4 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 1.0f, 0.0f), 0.0f, 0.8f, 1.0f);
+    auto matSphere5 = std::make_shared<PBR::Material>(glm::vec3(0.0f, 1.0f, 1.0f), 0.0f, 0.8f, 1.0f);
+    auto matSphere6 = std::make_shared<PBR::Material>(glm::vec3(1.0f, 0.0f, 1.0f), 0.0f, 0.8f, 1.0f);
 
     m_world.m_objects = {
-        std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, 2.f, 0.0f), 2.f, matSphere1),
-        std::make_shared<Hitable::Sphere>(glm::vec3(2.f, 2.f, 2.f), 0.5f, matSphere2),
-        std::make_shared<Hitable::Sphere>(glm::vec3(0.f, 2.f, -4.f), 1.0f, matSphere3)
+        std::make_shared<Hitable::Sphere>(glm::vec3(0.0f, -50.0f, 0.0f), 50.f, matSphere1),
+        std::make_shared<Hitable::Sphere>(glm::vec3(-2.5f, 0.0f, 7.5f), 0.5f, matSphere2),
+        std::make_shared<Hitable::Sphere>(glm::vec3(-2.0f, 0.7f, 5.2f), 1.0f, matSphere3),
+        std::make_shared<Hitable::Sphere>(glm::vec3(-1.85f, -0.07f, 6.1f), 0.2f, matSphere4),
+        std::make_shared<Hitable::Sphere>(glm::vec3(4.4f, 0.65f, 0.0f), 0.8f, matSphere5),
+        std::make_shared<Hitable::Sphere>(glm::vec3(2.8f, -0.35f, 7.4f), 0.1f, matSphere6)
     };
 
     m_lights = {
@@ -49,7 +55,7 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     /*int rank = mpiCtx->getRank();
     int num_processes = mpiCtx->getNumTasks();
-    int num_workers = Config::NB_WORKERS; // Le processus de rang 0 est le maître
+    int num_workers = Config::NB_WORKERS; // Le processus de rang 0 est le maï¿½tre
 
     int samples_per_worker = Config::SAMPLES / num_workers;
     int remainder_samples = Config::SAMPLES % num_workers;
@@ -73,15 +79,15 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     int total_samples_so_far = 0;
 
     for (int s = 1; s <= max_assigned_samples; ++s) {
-        // Réinitialiser local_buffer
+        // Rï¿½initialiser local_buffer
         std::fill(local_buffer.begin(), local_buffer.end(), 0.0f);
 
-        // Déterminer si le processus contribue cette itération
+        // Dï¿½terminer si le processus contribue cette itï¿½ration
         bool worker_has_sample = false;
         if (rank != 0 && s <= assigned_samples) {
             worker_has_sample = true;
 
-            // Calcul des échantillons
+            // Calcul des ï¿½chantillons
             for (int j = 0; j < image_height; ++j) {
                 for (int i = 0; i < image_width; ++i) {
                     float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
@@ -108,12 +114,12 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
         }
 
         if (rank == 0) {
-            // Accumuler les nouvelles données dans global_buffer
+            // Accumuler les nouvelles donnï¿½es dans global_buffer
             for (size_t idx = 0; idx < global_buffer.size(); ++idx) {
                 global_buffer[idx] += local_buffer[idx];
             }
 
-            // Calculer le nombre d'échantillons contribué cette itération
+            // Calculer le nombre d'ï¿½chantillons contribuï¿½ cette itï¿½ration
             int samples_contributed_this_iteration = 0;
             if (s <= samples_per_worker) {
                 samples_contributed_this_iteration = num_workers;
@@ -179,7 +185,6 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
         }
 
         sdlCtx->updateScreen();
-        std::cout << "render finished" << std::endl;
     }
 
     fb.saveAsPPM("image.ppm");
