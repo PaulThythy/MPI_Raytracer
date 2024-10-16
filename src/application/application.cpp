@@ -14,13 +14,13 @@ Application::Application(int argc, char *argv[]) {
 
     if(m_mpiCtx->getRank() == 0) {
         if (m_sdlCtx->initSDL()) {
-            m_scene->render(m_mpiCtx, m_sdlCtx);
+            //m_scene->render(m_mpiCtx, m_sdlCtx);
             execute();
         } else {
             m_isRunning = false;
         }
     } else {
-        m_scene->render(m_mpiCtx, m_sdlCtx);
+        //m_scene->render(m_mpiCtx, m_sdlCtx);
     }
 }
 
@@ -49,29 +49,21 @@ void Application::execute() {
                     std::cout << "ESCAPE key pressed. Exiting...\n" << std::endl;
                     m_isRunning = false;
                 }
-            }
-            //TODO add camera movement features
-            else if (event.type == SDL_KEYDOWN) {
+                //TODO add camera movement features
                 if (event.key.keysym.sym == SDLK_z) { 
                     std::cout << "Moving camera forward...\n" << std::endl;
                 }
-            }
-            else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_s) { 
                     std::cout << "Moving camera backward...\n" << std::endl;
                 }
-            }
-            else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_d) { 
                     std::cout << "Moving camera to the right...\n" << std::endl;
                 }
-            }
-            else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_q) { 
                     std::cout << "Moving camera to the left...\n" << std::endl;
                 }
             }
-
+            
             //TODO add events (for moving camera for example)
         }
 
