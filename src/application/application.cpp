@@ -41,13 +41,34 @@ void Application::execute() {
     while(m_isRunning) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) { 
-                std::cout << "SDL_QUIT event detected. Exiting...\n";
+                std::cout << "SDL_QUIT event detected. Exiting...\n" << std::endl;
                 m_isRunning = false;
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) { 
-                    std::cout << "ESCAPE key pressed. Exiting...\n";
+                    std::cout << "ESCAPE key pressed. Exiting...\n" << std::endl;
                     m_isRunning = false;
+                }
+            }
+            //TODO add camera movement features
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_z) { 
+                    std::cout << "Moving camera forward...\n" << std::endl;
+                }
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_s) { 
+                    std::cout << "Moving camera backward...\n" << std::endl;
+                }
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_d) { 
+                    std::cout << "Moving camera to the right...\n" << std::endl;
+                }
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_q) { 
+                    std::cout << "Moving camera to the left...\n" << std::endl;
                 }
             }
 
