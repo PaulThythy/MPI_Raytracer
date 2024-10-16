@@ -54,29 +54,37 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
 
 void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     int rank = mpiCtx->getRank();
+    int num_processes = mpiCtx->getNumTasks();
+
     int image_width = Config::WINDOW_WIDTH;
     int image_height = Config::WINDOW_HEIGHT;
 
-    int num_workers = Config::NB_WORKERS;
-
-    int samples_per_worker = Config::SAMPLES / num_workers;
-    int remainder_samples = Config::SAMPLES % num_workers;
+    // number of samples per workers
+    int samples_per_worker = Config::SAMPLES / num_processes;
+    int remainder_samples = Config::SAMPLES % num_processes;
 
     int num_samples = samples_per_worker + (rank < remainder_samples ? 1 : 0);
 
-    int total_samples = 0;
+    // debug
+    if (rank == 0) {
+        std::cout << "number of processes : " << num_processes << std::endl;
+    }
+    std::cout << "Rank : " << rank << ", samples : " << num_samples << std::endl;
 
-    std::cout << "rank : " << rank << ", samples per worker : " << samples_per_worker << ", remainder_samples : " << remainder_samples << ", num_samples : " << num_samples << ", samples : " << Config::SAMPLES << std::endl;
-
+    // local buffer to accumulate colors
     std::vector<float> local_sum_buffer(image_width * image_height * 3, 0.0f);
+
+    // global buffer to accumulate colors on the master process
     std::vector<float> global_sum_buffer;
     if (rank == 0) {
         global_sum_buffer.resize(local_sum_buffer.size(), 0.0f);
     }
 
-    FrameBuffer fb(image_width, image_height);
+    // number of accumulated samples
+    int total_samples = 0;
 
-    for(int s = 0 ; s < num_samples ; s++) {
+    for (int s = 0; s < num_samples; s++) {
+        // reset local buffer
         std::vector<float> local_sample_buffer(image_width * image_height * 3, 0.0f);
 
         for (int j = 0; j < image_height; ++j) {
@@ -88,25 +96,40 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
                 glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
 
                 int idx = (j * image_width + i) * 3;
-                local_sample_buffer[idx]     += sampleColor.r;
-                local_sample_buffer[idx + 1] += sampleColor.g;
-                local_sample_buffer[idx + 2] += sampleColor.b;
+                local_sample_buffer[idx]     = sampleColor.r;
+                local_sample_buffer[idx + 1] = sampleColor.g;
+                local_sample_buffer[idx + 2] = sampleColor.b;
             }
         }
 
+        std::cout << "rank : " << rank << ", samples : " << (s + 1) << " / " << num_samples << " finished." << std::endl;
+
+        // gather local buffers on the master process
         std::vector<float> global_sample_buffer;
-        if(rank == 0) {
-            global_sample_buffer.resize(local_sample_buffer.size(), 0.0f);
+        if (rank == 0) {
+            global_sample_buffer.resize(local_sample_buffer.size() * num_processes);
         }
-        MPI_Reduce(local_sample_buffer.data(), global_sample_buffer.data(), local_sample_buffer.size(), MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-        if(rank == 0) {
-            for(size_t idx = 0; idx < global_sample_buffer.size(); ++idx) {
+        MPI_Gather(local_sample_buffer.data(), local_sample_buffer.size(), MPI_FLOAT,
+                   global_sample_buffer.data(), local_sample_buffer.size(), MPI_FLOAT,
+                   0, MPI_COMM_WORLD);
+
+        // master process accumulate colors and updates the window
+        if (rank == 0) {
+            for (size_t idx = 0; idx < local_sample_buffer.size(); ++idx) {
+                // add the contribution of master process
                 global_sum_buffer[idx] += global_sample_buffer[idx];
+
+                // add the contribution of the other processes
+                for (int p = 1; p < num_processes; ++p) {
+                    global_sum_buffer[idx] += global_sample_buffer[p * local_sample_buffer.size() + idx];
+                }
             }
 
-            total_samples += num_workers;
+            // updates the total samples variable
+            total_samples += num_processes;
 
+            // update the window
             for (int j = 0; j < image_height; ++j) {
                 for (int i = 0; i < image_width; ++i) {
                     int idx = (j * image_width + i) * 3;
@@ -114,22 +137,45 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
                     float g = global_sum_buffer[idx + 1] / total_samples;
                     float b = global_sum_buffer[idx + 2] / total_samples;
 
+                    // gamma correction
+                    r = sqrt(r);
+                    g = sqrt(g);
+                    b = sqrt(b);
+
+                    // converts to int 
                     int ir = static_cast<int>(glm::clamp(r * 255.99f, 0.0f, 255.99f));
                     int ig = static_cast<int>(glm::clamp(g * 255.99f, 0.0f, 255.99f));
                     int ib = static_cast<int>(glm::clamp(b * 255.99f, 0.0f, 255.99f));
 
                     sdlCtx->setPixel(i, j, ir, ig, ib);
-                    fb.setPixel(i, j, glm::vec3(r, g, b));
                 }
             }
 
             sdlCtx->updateScreen();
-            std::cout << "end of iteration" << std::endl;
         }
     }
 
-    if(rank == 0) {
-        std::cout << "render finished" << std::endl;
+    // saves the image into a file
+    if (rank == 0) {
+        FrameBuffer fb(image_width, image_height);
+
+        for (int j = 0; j < image_height; ++j) {
+            for (int i = 0; i < image_width; ++i) {
+                int idx = (j * image_width + i) * 3;
+                float r = global_sum_buffer[idx];
+                float g = global_sum_buffer[idx + 1];
+                float b = global_sum_buffer[idx + 2];
+
+                r = sqrt(r);
+                g = sqrt(g);
+                b = sqrt(b);
+
+                fb.setPixel(i, j, glm::vec3(r, g, b));
+            }
+        }
+
         fb.saveAsPPM("image.ppm");
+
+        std::cout << "render finished." << std::endl;
     }
 }
