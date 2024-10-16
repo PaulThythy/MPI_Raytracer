@@ -130,6 +130,7 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
             total_samples += num_processes;
 
             // update the window
+            std::cout << "updating the window..." << std::endl;
             for (int j = 0; j < image_height; ++j) {
                 for (int i = 0; i < image_width; ++i) {
                     int idx = (j * image_width + i) * 3;
