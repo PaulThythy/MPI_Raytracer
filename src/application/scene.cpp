@@ -158,6 +158,7 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     // saves the image into a file
     if (rank == 0) {
         FrameBuffer fb(image_width, image_height);
+        std::cout << "Generating the image..." << std::endl;
 
         for (int j = 0; j < image_height; ++j) {
             for (int i = 0; i < image_width; ++i) {
@@ -165,10 +166,6 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
                 float r = global_sum_buffer[idx];
                 float g = global_sum_buffer[idx + 1];
                 float b = global_sum_buffer[idx + 2];
-
-                r = sqrt(r);
-                g = sqrt(g);
-                b = sqrt(b);
 
                 fb.setPixel(i, j, glm::vec3(r, g, b));
             }
