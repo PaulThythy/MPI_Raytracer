@@ -14,13 +14,13 @@ Application::Application(int argc, char *argv[]) {
 
     if(m_mpiCtx->getRank() == 0) {
         if (m_sdlCtx->initSDL()) {
-            //m_scene->render(m_mpiCtx, m_sdlCtx);
+            m_scene->render(m_mpiCtx, m_sdlCtx);
             execute();
         } else {
             m_isRunning = false;
         }
     } else {
-        //m_scene->render(m_mpiCtx, m_sdlCtx);
+        m_scene->render(m_mpiCtx, m_sdlCtx);
     }
 }
 
