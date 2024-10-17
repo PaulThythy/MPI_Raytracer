@@ -60,6 +60,23 @@ struct Camera {
         m_lowerLeftCorner = m_lookFrom - m_viewportWidthVec / 2.0f - m_viewportHeightVec / 2.0f - m_w * focusDist;
     }
 
+    /*inline void updateCamera() {
+        m_lensRadius = m_aperture / 2.0f;
+
+        float theta = glm::radians(m_vfov);
+        float h = tan(theta / 2);
+        float viewportHeight = 2.0f * h;
+        float viewportWidth = m_aspectRatio * viewportHeight;
+
+        m_w = glm::normalize(m_lookFrom - m_lookAt);
+        m_u = glm::normalize(glm::cross(m_up, m_w));
+        m_v = glm::cross(m_w, m_u);
+
+        m_viewportWidthVec = m_u * viewportWidth * m_focusDist;
+        m_viewportHeightVec = m_v * viewportHeight * m_focusDist;
+
+        m_lowerLeftCorner = m_lookFrom - m_viewportWidthVec / 2.0f - m_viewportHeightVec / 2.0f - m_w * m_focusDist;
+    }*/
 
     inline Ray::Ray getRay(float u, float v) {
         glm::vec3 rd = Random::randomInUnitDisk() * m_lensRadius;
