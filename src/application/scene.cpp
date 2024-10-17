@@ -83,26 +83,39 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
     // number of accumulated samples
     int total_samples = 0;
 
-    for (int s = 0; s < num_samples; s++) {
+    // Counter to keep track of samples computed by this process
+    int samples_computed = 0;
+
+    // The maximum number of samples among all processes
+    int max_samples = samples_per_worker + (remainder_samples > 0 ? 1 : 0);
+
+    for (int s = 0; s < max_samples; s++) {
         // reset local buffer
         std::vector<float> local_sample_buffer(image_width * image_height * 3, 0.0f);
 
-        for (int j = 0; j < image_height; ++j) {
-            for (int i = 0; i < image_width; ++i) {
-                float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
-                float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);
-                Ray::Ray ray = m_camera.getRay(u, v);
+        // Check if this process still has samples to compute
+        bool has_sample = (samples_computed < num_samples);
 
-                glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
+        if(has_sample) {
+            for (int j = 0; j < image_height; ++j) {
+                for (int i = 0; i < image_width; ++i) {
+                    float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
+                    float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);
+                    Ray::Ray ray = m_camera.getRay(u, v);
 
-                int idx = (j * image_width + i) * 3;
-                local_sample_buffer[idx]     = sampleColor.r;
-                local_sample_buffer[idx + 1] = sampleColor.g;
-                local_sample_buffer[idx + 2] = sampleColor.b;
+                    glm::vec3 sampleColor = rayColor(ray, m_world, m_lights, Config::BOUNCES);
+
+                    int idx = (j * image_width + i) * 3;
+                    local_sample_buffer[idx]     = sampleColor.r;
+                    local_sample_buffer[idx + 1] = sampleColor.g;
+                    local_sample_buffer[idx + 2] = sampleColor.b;
+                }
             }
-        }
 
-        std::cout << "rank : " << rank << ", samples : " << (s + 1) << " / " << num_samples << " finished." << std::endl;
+            std::cout << "rank : " << rank << ", samples : " << (s + 1) << " / " << num_samples << " finished." << std::endl;
+
+            samples_computed++;
+        }
 
         // gather local buffers on the master process
         std::vector<float> global_sample_buffer;
