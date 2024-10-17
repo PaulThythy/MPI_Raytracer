@@ -21,7 +21,7 @@ public:
     Application(int argc, char *argv[]);
     ~Application();
 
-    void execute();
+    void eventListener();
 };
 
 #endif

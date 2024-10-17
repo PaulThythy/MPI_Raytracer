@@ -52,7 +52,7 @@ glm::vec3 Scene::rayColor(const Ray::Ray& ray, HitableList& world, const std::ve
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 }
 
-void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
+void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx, bool isRunning) {
     int rank = mpiCtx->getRank();
     int num_processes = mpiCtx->getNumTasks();
 
@@ -98,6 +98,7 @@ void Scene::render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx) {
 
         if(has_sample) {
             for (int j = 0; j < image_height; ++j) {
+                if (!isRunning) break;
                 for (int i = 0; i < image_width; ++i) {
                     float u = (i + Random::randomFloat(0.0f, 1.0f)) / (image_width - 1);
                     float v = (j + Random::randomFloat(0.0f, 1.0f)) / (image_height - 1);

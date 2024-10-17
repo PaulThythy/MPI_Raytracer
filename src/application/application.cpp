@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <thread>
+#include <atomic>
 #include <memory>
 
 #include "application.h"
@@ -12,16 +13,21 @@ Application::Application(int argc, char *argv[]) {
 
     m_scene = std::make_unique<Scene>();
 
-    //TODO modify how render is called, and move the execute function in the render function
-    if(m_mpiCtx->getRank() == 0) {
-        if (m_sdlCtx->initSDL()) {
-            m_scene->render(m_mpiCtx, m_sdlCtx);
-            execute();
-        } else {
+    if (m_mpiCtx->getRank() == 0) {
+        if (!m_sdlCtx->initSDL()) {
             m_isRunning = false;
         }
-    } else {
-        m_scene->render(m_mpiCtx, m_sdlCtx);
+    }
+
+    std::thread eventThread;
+    if (m_mpiCtx->getRank() == 0) {
+        eventThread = std::thread(&Application::eventListener, this);
+    }
+
+    m_scene->render(m_mpiCtx, m_sdlCtx, m_isRunning);
+
+    if (m_mpiCtx->getRank() == 0 && eventThread.joinable()) {
+        eventThread.join();
     }
 }
 
@@ -37,7 +43,7 @@ Application::~Application() {
     }
 }
 
-void Application::execute() {
+void Application::eventListener() {
     SDL_Event event;
     while(m_isRunning) {
         while (SDL_PollEvent(&event)) {

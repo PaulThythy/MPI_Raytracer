@@ -38,7 +38,7 @@ struct Scene {
 
     glm::vec3 rayColor(const Ray::Ray& ray, HitableList& world, const std::vector<std::shared_ptr<Lighting::Light>>& lights, int bounces);
 
-    void render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx);
+    void render(MPI::MPI_context* mpiCtx, SDL::SDL_context* sdlCtx, bool isRunning);
 };
 
 #endif
