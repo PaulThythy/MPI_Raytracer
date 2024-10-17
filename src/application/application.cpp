@@ -12,6 +12,7 @@ Application::Application(int argc, char *argv[]) {
 
     m_scene = std::make_unique<Scene>();
 
+    //TODO modify how render is called, and move the execute function in the render function
     if(m_mpiCtx->getRank() == 0) {
         if (m_sdlCtx->initSDL()) {
             m_scene->render(m_mpiCtx, m_sdlCtx);
