@@ -26,10 +26,11 @@ struct Camera {
     glm::vec3 m_lookFrom;
     glm::vec3 m_lookAt;
     glm::vec3 m_up;
-    float m_vfov;         // Vertical field of view in degrees
-    float m_aspectRatio;  // Aspect ratio (width/height)
-
-    float m_lensRadius;   // Lens radius for depth of field
+    float m_vfov;           // Vertical field of view in degrees
+    float m_aspectRatio;    // Aspect ratio (width/height)
+    float m_aperture;       // Aperture for depth of field
+    float m_lensRadius;     // Lens radius for depth of field
+    float m_focusDist;      // Focus distance
 
     // camera basis vectors
     glm::vec3 m_u, m_v, m_w;
@@ -44,6 +45,8 @@ struct Camera {
         m_up = up;
         m_vfov = vfov;
         m_aspectRatio = aspectRatio;
+        m_aperture = aperture;
+        m_focusDist = focusDist;
 
         float theta = glm::radians(vfov);
         float h = tan(theta / 2);

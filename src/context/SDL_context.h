@@ -22,6 +22,9 @@ namespace SDL {
         bool initSDL();
         void endSDL();
 
+        SDL_Renderer* getRenderer();
+        SDL_Window* getWindow();
+
         void setPixel(int x, int y, int r, int g, int b);
         void updateScreen();
     };

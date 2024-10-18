@@ -44,3 +44,6 @@ void SDL::SDL_context::setPixel(int x, int y, int r, int g, int b) {
 void SDL::SDL_context::updateScreen() {
     SDL_RenderPresent(m_SDLrenderer);
 }
+
+SDL_Renderer* SDL::SDL_context::getRenderer() { return m_SDLrenderer; }
+SDL_Window* SDL::SDL_context::getWindow() { return m_SDLwindow; }

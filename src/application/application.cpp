@@ -3,6 +3,12 @@
 #include <atomic>
 #include <memory>
 
+#ifdef _WIN32
+	#include <SDL.h>
+#elif __linux__
+	#include <SDL2/SDL.h>
+#endif
+
 #include "application.h"
 
 Application::Application(int argc, char *argv[]) {
@@ -59,15 +65,17 @@ void Application::eventListener() {
                 //TODO add camera movement features
                 if (event.key.keysym.sym == SDLK_z) { 
                     std::cout << "Moving camera forward...\n";
-                    m_scene->m_camera.m_lookFrom.z -= 5.0f;  
-                    //m_scene->m_camera.updateCamera();       
-                    m_scene->render(m_mpiCtx, m_sdlCtx, m_isRunning);
+                    //m_scene->m_camera.m_lookFrom.z -= 5.0f;  
+                    //m_scene->m_camera.updateCamera();  
+                    //SDL_RenderClear(m_sdlCtx->getRenderer());     
+                    //m_scene->render(m_mpiCtx, m_sdlCtx, m_isRunning);
                 }
                 if (event.key.keysym.sym == SDLK_s) { 
                     std::cout << "Moving camera backward...\n";
-                    m_scene->m_camera.m_lookFrom.z += 5.0f;  
+                    //m_scene->m_camera.m_lookFrom.z += 5.0f;  
                     //m_scene->m_camera.updateCamera();  
-                    m_scene->render(m_mpiCtx, m_sdlCtx, m_isRunning);
+                    //SDL_RenderClear(m_sdlCtx->getRenderer()); 
+                    //m_scene->render(m_mpiCtx, m_sdlCtx, m_isRunning);
                 }
                 if (event.key.keysym.sym == SDLK_d) { 
                     std::cout << "Moving camera to the right...\n";

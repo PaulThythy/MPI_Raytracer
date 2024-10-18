@@ -12,7 +12,7 @@ namespace Config {
     inline const int WINDOW_HEIGHT = 900;
 
     // number of rays per pixel
-    inline const int SAMPLES = 1;
+    inline const int SAMPLES = 3;
 
     inline const int BOUNCES = 2;
 
